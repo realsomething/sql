@@ -50,46 +50,50 @@ basic common SQL statements review.
 `SELECT prod_name FROM Products FETCH FIRST 5 ROWS ONLY;  # DB2  `  
 `SELECT prod_name FROM Products WHERE ROWNUM <= 5;	# Oracle   `  
 
-**使用注释**：
-* 两个连字符--，表示行内注释
-* #表示行内注释
-* /* */表示多行注释
+# 第三课：排序检索结果
+**单列排序**：  
+`prod_id  vend_id  prod_name  prod_price  prod_desc`  
+`SELECT prod_name FROM Products ORDER BY prod_name;`  
+如果不明确控制的话，检索结果不应该依赖默认的排序结果；在指定一条ORDER BY子句时，应保证它是SELECT语句的最后一条子句，否则将出现错误；通常，ORDER BY子句中所用的列是为显示而选择的列，但是并不一定要这样，非检索的列也可用于排序  
 
-第三课：排序检索结果
-单列排序：
-prod_id  vend_id  prod_name  prod_price  prod_desc
-SELECT prod_name FROM Products ORDER BY prod_name;
-如果不明确控制的话，检索结果不应该依赖默认的排序结果；在指定一条ORDER BY子句时，应保证它是SELECT语句的最后一条子句，否则将出现错误；通常，ORDER BY子句中所用的列是为显示而选择的列，但是并不一定要这样，非检索的列也可用于排序
-多列排序：
-SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price, prod_name;
+**多列排序**：  
+`SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price, prod_name;`  
 首先按prod_price进行排序，若prod_price相同，再按prod_name排序
-按位置排序：
-SELECT prod_id, prod_name, prod_price FROM Products ORDER BY 3, 2;
-先按3即prod_price排序，若prod_price相同，再按2即prod_name排序，而且如果进行排序的列不在SELECT语句中，则不能使用这项技术
-指定排序方向：
-SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price DESC, prod_name
-DESC DESCENDING表示降序排序，默认是升序ASC ASCENDING排序,关键字DESC只能应用到直接位于其前面的列名，即prod_price，而prod_name仍按升序排序，如果要在多个列上进行降序排序，必须对每一列指定DESC
-SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price DESC, prod_name DESC
-排序时至于A和a是否一样，取决于数据库的设置方式，在字典排序中，A被视为与a相同，这是大多数DBMS的默认行为，但是许多DBMS允许修改这种行为
 
-第四课：过滤数据
-WHERE子句：
-SELECT prod_name, prod_price FROM Products WHERE prod_price = 3.69;
-在SELECT语句中，数据根据WHERE子句中指定的搜索条件进行过滤，数据也可以在应用层过滤，但是这种做法极为不妥，优化数据库后可以更快速有效的对数据进行过滤，而让客户端应用去处理数据库的工作会极大的影响应用性能，并且使应用完全不具备可伸缩性，此外，服务器还不得不发送多余的数据
-WHERE子句操作符：
-= 等于    != 或 <> 不等于    BETWEEN 两值之间    IS NULL 值为NULL
-< 小于    > 大于    !< 不小于    !> 不大于    <= 小于等于    >= 大于等于
-并非所有的DBMS都支持这些操作符
-检查单值：
-SELECT prod_id, prod_price FROM Products WHERE prod_price < 10;
-不匹配检查：
-SELECT prod_name, vend_id FROM Products WHERE vend_id != 'DLL01';
-单引号''用来限定字符串
-范围检查：
-SELECT prod_name, prod_price FROM Products WHERE prod_price BETWEEN 5 AND 10;
-空值检查：
-SELECT cust_name FROM Customers WHERE cust_email IS NULL;
-NULL与字段包含0，空字符串或仅仅包含空格不一样；确定值是否为NULL，不能简单的检查是否=NULL，只能用WHERE子句的IS NULL来检查；在创建表时，可以指定其中的列能否不包含值，如果可以，则称其包含空值NULL
+**按位置排序**：  
+`SELECT prod_id, prod_name, prod_price FROM Products ORDER BY 3, 2;`  
+先按3即prod_price排序，若prod_price相同，再按2即prod_name排序，而且如果进行排序的列不在SELECT语句中，则不能使用这项技术  
+
+**指定排序方向**：  
+`SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price DESC, prod_name`  
+DESC DESCENDING表示降序排序，默认是升序ASC ASCENDING排序，关键字DESC只能应用到直接位于其前面的列名，即prod_price，而prod_name仍按升序排序，如果要在多个列上进行降序排序，必须对每一列指定DESC    
+
+`SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price DESC, prod_name DESC`  
+排序时至于A和a是否一样，取决于数据库的设置方式，在字典排序中，A被视为与a相同，这是大多数DBMS的默认行为，但是许多DBMS允许修改这种行为  
+
+# 第四课：过滤数据
+**WHERE子句**：  
+`SELECT prod_name, prod_price FROM Products WHERE prod_price = 3.69;`  
+在SELECT语句中，数据根据WHERE子句中指定的搜索条件进行过滤，数据也可以在应用层过滤，但是这种做法极为不妥，优化数据库后可以更快速有效的对数据进行过滤，而让客户端应用去处理数据库的工作会极大的影响应用性能，并且使应用完全不具备可伸缩性，此外，服务器还不得不发送多余的数据  
+
+**WHERE子句操作符**：  
+`= 等于    != 或 <> 不等于    BETWEEN 两值之间    IS NULL 值为NULL`  
+`< 小于    > 大于    !< 不小于    !> 不大于    <= 小于等于    >= 大于等于`  
+并非所有的DBMS都支持这些操作符  
+
+**检查单值**：  
+`SELECT prod_id, prod_price FROM Products WHERE prod_price < 10;`  
+
+**不匹配检查**：  
+`SELECT prod_name, vend_id FROM Products WHERE vend_id != 'DLL01';`  
+单引号''用来限定字符串  
+
+**范围检查**：  
+`SELECT prod_name, prod_price FROM Products WHERE prod_price BETWEEN 5 AND 10;`    
+
+**空值检查**：  
+`SELECT cust_name FROM Customers WHERE cust_email IS NULL;`  
+NULL与字段包含0，空字符串或仅仅包含空格不一样；确定值是否为NULL，不能简单的检查是否=NULL，只能用WHERE子句的IS NULL来检查；在创建表时，可以指定其中的列能否不包含值，如果可以，则称其包含空值NULL  
 
 第五课：高级数据过滤
 组合WHERE子句：
