@@ -101,13 +101,15 @@ DESC DESCENDING表示降序排序，默认是升序ASC ASCENDING排序，关键�
 NULL与字段包含0，空字符串或仅仅包含空格不一样；确定值是否为NULL，不能简单的检查是否=NULL，只能用WHERE子句的IS NULL来检查；在创建表时，可以指定其中的列能否不包含值，如果可以，则称其包含空值NULL  
 
 # 第五课：高级数据过滤
-**组合WHERE子句**：
+**组合WHERE子句**：  
 `SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id='DLL01' AND prod_price <= 4;`  
 为了进行更强的过滤控制，SQL允许给出多个WHERE子句，它们可以使用AND或者OR连接  
 `SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id='DLL01' OR prod_price <= 4;` 
 `SELECT prod_id, prod_name, prod_price FROM Products WHERE (vend_id='DLL01' OR vend_id='BRS01') AND prod_price <= 4;`  
+
 任何时候使用具有AND和OR的WHERE子句，都应该使用圆括号明确的分组操作符，不要过分依赖默认求值顺序  
 `SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id IN('DLL01', 'BRS01') ORDER BY prod_name;`  
+
 IN取一组逗号分隔，括在圆括号中的合法值，IN的优点：  
 * 在有很多合法选项时，语法更清楚直观
 * 与其他AND和OR操作符组合时，求值顺序更容易管理
@@ -116,11 +118,12 @@ IN取一组逗号分隔，括在圆括号中的合法值，IN的优点：
 
 `SELECT prod_id, prod_name, prod_price FROM Products WHERE NOT vend_id = 'DLL01';`
 NOT操作符只有一个功能，就是否定其后所跟的任何条件，作用在要过滤的列前  
+
 `SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id != 'DLL01'; # 同上`  
 在更复杂的子句中，NOT非常有用，在与IN操作符联合使用时，NOT可以非常简单的找出与条件列表不匹配的行
 
 # 第六课：用通配符进行过滤
-**LIKE操作符**：
+**LIKE操作符**：  
 为了在搜索子句中使用通配符，必须使用LIKE操作符，其指示DBMS，后跟的搜索模式利用通配符匹配而不是简单的相等匹配进行比较；操作符作为谓词时不是操作符，通配符搜索只能用于文本字段，非文本数据类型不能使用通配符搜索  
 **%：** 表示任何字符出现任意次数  
 `SELECT prod_id, prod_name FROM Products WHERE prod_name LIKE '%fish%';`   
@@ -128,8 +131,10 @@ NOT操作符只有一个功能，就是否定其后所跟的任何条件，作�
 包括Access在内的很多DBMS都用空格来填补字段内容，如某列有50个字符，而存储的文本只有17个字符，则填满33个空格，这样做一般对数据及其使用没有影响，但是可能对上述SQL语句有负面影响，导致搜索失败，解决办法是给搜索模式再增加一个%，或者使用trim函数  
 `SELECT prod_id, prod_name FROM Products WHERE prod_name LIKE 'f%h%';`   
 通配符%看起来可以匹配任何东西，但是无法匹配NULL，子句WHERE prod_name LIKE '%'不会匹配产品名称为NULL的行  
+
 **\_** 当且仅当匹配一个字符，DB2不支持该操作符，Microsoft Access使用的则是?  
 `SELECT prod_id, prod_name FROM Products WHERE prod_name LIKE '__ bag%';`  
+
 **[]：**方括号用来指定一个字符集，必须匹配指定位置的一个字符，仅Access和SQL Server支持  
 `SELECT cust_contact FROM Customers WHERE cust_contact LIKE '[JM]%'; # SQLite不支持`  
 `SELECT cust_contact FROM Customers WHERE cust_contact LIKE '[^JM]%'; # SQLite不支持`  
@@ -140,24 +145,28 @@ NOT操作符只有一个功能，就是否定其后所跟的任何条件，作�
 * 在确实需要使用通配符时，也应该将其放在搜索模式最末，放在开始处搜索起来最慢
 * 注意通配符的位置，如果放错地方，可能不会返回想要的数据
 
-第七课：创建计算字段
-计算字段：
-存储在数据表中的数据通常不是应用所需要的，我们需要直接从数据库中检索出转换、计算、格式化过的数据，而不是检索出数据然后再在客户端程序中重新格式化；只有数据库知道SELECT语句中哪些列是实际的表列，哪些是计算字段，从客户端来看，计算字段和表列的数据返回方式相同；在SQL语句内可完成的许多转换和格式化工作都可以直接在客户端应用中完成，但是一般来说，在数据库服务器上完成这些操作要比客户端快得多
-拼接字段：
-SELECT vend_name || ' (' || vend_country || ')' FROM Vendors ORDER BY vend_name;
-Access和SQL Server使用+，SQLite等使用||，左括号左边有个空格
-使用别名：
+# 第七课：创建计算字段
+**计算字段**：  
+存储在数据表中的数据通常不是应用所需要的，我们需要直接从数据库中检索出转换、计算、格式化过的数据，而不是检索出数据然后再在客户端程序中重新格式化；只有数据库知道SELECT语句中哪些列是实际的表列，哪些是计算字段，从客户端来看，计算字段和表列的数据返回方式相同；在SQL语句内可完成的许多转换和格式化工作都可以直接在客户端应用中完成，但是一般来说，在数据库服务器上完成这些操作要比客户端快得多   
+
+**拼接字段**：  
+`SELECT vend_name || ' (' || vend_country || ')' FROM Vendors ORDER BY vend_name;` 
+Access和SQL Server使用+，SQLite等使用||，左括号左边有个空格  
+
+**使用别名**：  
 SELECT语句可以很好的进行拼接，可是拼接出来的字段没有名字，只是一个值，如果客户端需要引用，可为它起个别名，用关键字AS赋予
-SELECT vend_name || ' (' || vend_country || ')' AS vend_title FROM Vendors ORDER BY vend_name;
-AS关键字是可选的，但是最好使用它；其常见用途包括在实际的表列名包含不合法的字符如空格时重新命名它，在原理名字含混或容易误解时扩充它；别名可以是一个单词，也可以是一个字符串，但不建议定义为字符串，有的地方称为导出列
-执行算术计算：
-SELECT prod_id, quantity, item_price, quantity*item_price AS total_price FROM OrderItems WHERE order_num = 20008;
-计算字段的另一个常见用途是对检索出的数据进行算术计算
-测试计算：
-SELECT语句为测试、检验函数和计算提供了很好的方法，虽然它通常用了检索数据，但是省略了FROM子句后就是简单的访问和处理表达式，如：
-SELECT 2*3;
-SELECT Trim('   abc ');
-SELECT Date();
+`SELECT vend_name || ' (' || vend_country || ')' AS vend_title FROM Vendors ORDER BY vend_name;`  
+AS关键字是可选的，但是最好使用它；其常见用途包括在实际的表列名包含不合法的字符如空格时重新命名它，在原理名字含混或容易误解时扩充它；别名可以是一个单词，也可以是一个字符串，但不建议定义为字符串，有的地方称为导出列  
+
+**执行算术计算**：  
+`SELECT prod_id, quantity, item_price, quantity*item_price AS total_price FROM OrderItems WHERE order_num = 20008;`  
+计算字段的另一个常见用途是对检索出的数据进行算术计算  
+
+**测试计算**：  
+SELECT语句为测试、检验函数和计算提供了很好的方法，虽然它通常用了检索数据，但是省略了FROM子句后就是简单的访问和处理表达式，如：  
+`SELECT 2*3;`  
+`SELECT Trim('   abc ');`  
+`SELECT Date();`  
 
 第八课：使用函数处理数据
 函数的问题：
