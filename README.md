@@ -168,33 +168,35 @@ SELECT语句为测试、检验函数和计算提供了很好的方法，虽然�
 `SELECT Trim('   abc ');`  
 `SELECT Date();`  
 
-第八课：使用函数处理数据
-函数的问题：
-与几乎所有的DBMS同等的支持SQL语句不同，每个DBMS都有特定的函数，事实上，只有很少的几个函数被所有主要的DBMS支持为了代码的可移植，许多SQL程序猿都不赞成使用特定功能的函数，但是不使用这些函数，编写某些应用程序就会很艰难
-文本处理函数：
-SELECT vend_name, UPPER(vend_name) AS vend_name_upcase FROM Vendors ORDER BY vend_name；
-LEFT() 返回字符串左边的字符
-LENGTH() 字符串的长度
-LOWER() 转换为小写
-UPPER() 转换为大写
-LTRIM() 去掉左边空格
-RTRIM() 去掉右边空格
-SOUNDEX() 返回字符串的SOUNDEX值
-SOUNDEX是一个将任何文本串转换为描述其语音表示的字母数字模式的算法，考虑了类似的发音字符和音节，使得能对字符串进行发音比较而不是字母比较；SOUNDEX不是SQL的概念，但是大多数DBMS都提供了支持；如果在创建SQLite时使用了SQLITE_SOUNDEX编译时选项，那么SOUNDEX就可以在SQLite中使用，SQLITE_SOUNDEX不是默认的编译时选项，所有大多SQLite的实现都不支持SOUNDEX
-SELECT cust_name, cust_contact FROM Customers WHERE SOUNDEX(cust_contact)=SOUNDEX('Michael Green');
-则可搜索出'Michelle Green'
-数值处理函数：
+# 第八课：使用函数处理数据
+**函数的问题**：  
+与几乎所有的DBMS同等的支持SQL语句不同，每个DBMS都有特定的函数，事实上，只有很少的几个函数被所有主要的DBMS支持。为了代码的可移植，许多SQL程序猿都不赞成使用特定功能的函数，但是不使用这些函数，编写某些应用程序就会很艰难  
+
+**文本处理函数**：
+`SELECT vend_name, UPPER(vend_name) AS vend_name_upcase FROM Vendors ORDER BY vend_name；`  
+* LEFT() 返回字符串左边的字符
+* LENGTH() 字符串的长度
+* LOWER() 转换为小写
+* UPPER() 转换为大写
+* LTRIM() 去掉左边空格
+* RTRIM() 去掉右边空格
+* SOUNDEX() 返回字符串的SOUNDEX值
+SOUNDEX是一个将任何文本串转换为描述其语音表示的字母数字模式的算法，考虑了类似的发音字符和音节，使得能对字符串进行发音比较而不是字母比较；SOUNDEX不是SQL的概念，但是大多数DBMS都提供了支持；如果在创建SQLite时使用了SQLITE_SOUNDEX编译时选项，那么SOUNDEX就可以在SQLite中使用，SQLITE_SOUNDEX不是默认的编译时选项，所有大多SQLite的实现都不支持SOUNDEX  
+`SELECT cust_name, cust_contact FROM Customers WHERE SOUNDEX(cust_contact)=SOUNDEX('Michael Green');`  
+则可搜索出'Michelle Green'  
+
+**数值处理函数**：  
 在主要DBMS的函数中，数值函数是最一致，最统一的
-ABS() 取绝对值
-SIN() 取正弦
-COS() 取余弦
-TAN() 取正切
-EXP() 取指数
-PI() 取PI
-SQRT() 取平方根
-日期和时间处理函数：
+* ABS() 取绝对值
+* SIN() 取正弦
+* COS() 取余弦
+* TAN() 取正切
+* EXP() 取指数
+* PI() 取PI
+* SQRT() 取平方根  
+**日期和时间处理函数**：  
 日期和时间采用相应的数据类型存储在表中，每种DBMS都有自己的特殊形式
-SELECT order_num FROM Orders WHERE strftime('%y', order_date) = '2012'; # SQLite实现
+`SELECT order_num FROM Orders WHERE strftime('%y', order_date) = '2012';   # SQLite实现`  
 
 第九课：汇总数据
 经常需要汇总数据而不是把它们检索出来，比如确定表中行数、获取表中某些行的和、找出表列的最大值平均数；与数据处理函数不同，SQL的聚集函数在主要DBMS获得了相当一致的支持
