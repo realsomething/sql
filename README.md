@@ -150,11 +150,11 @@ NOT操作符只有一个功能，就是否定其后所跟的任何条件，作�
 存储在数据表中的数据通常不是应用所需要的，我们需要直接从数据库中检索出转换、计算、格式化过的数据，而不是检索出数据然后再在客户端程序中重新格式化；只有数据库知道SELECT语句中哪些列是实际的表列，哪些是计算字段，从客户端来看，计算字段和表列的数据返回方式相同；在SQL语句内可完成的许多转换和格式化工作都可以直接在客户端应用中完成，但是一般来说，在数据库服务器上完成这些操作要比客户端快得多   
 
 **拼接字段**：  
-`SELECT vend_name || ' (' || vend_country || ')' FROM Vendors ORDER BY vend_name;` 
+`SELECT vend_name || ' (' || vend_country || ')' FROM Vendors ORDER BY vend_name;`   
 Access和SQL Server使用+，SQLite等使用||，左括号左边有个空格  
 
 **使用别名**：  
-SELECT语句可以很好的进行拼接，可是拼接出来的字段没有名字，只是一个值，如果客户端需要引用，可为它起个别名，用关键字AS赋予
+SELECT语句可以很好的进行拼接，可是拼接出来的字段没有名字，只是一个值，如果客户端需要引用，可为它起个别名，用关键字AS赋予  
 `SELECT vend_name || ' (' || vend_country || ')' AS vend_title FROM Vendors ORDER BY vend_name;`  
 AS关键字是可选的，但是最好使用它；其常见用途包括在实际的表列名包含不合法的字符如空格时重新命名它，在原理名字含混或容易误解时扩充它；别名可以是一个单词，也可以是一个字符串，但不建议定义为字符串，有的地方称为导出列  
 
@@ -172,7 +172,7 @@ SELECT语句为测试、检验函数和计算提供了很好的方法，虽然�
 **函数的问题**：  
 与几乎所有的DBMS同等的支持SQL语句不同，每个DBMS都有特定的函数，事实上，只有很少的几个函数被所有主要的DBMS支持。为了代码的可移植，许多SQL程序猿都不赞成使用特定功能的函数，但是不使用这些函数，编写某些应用程序就会很艰难  
 
-**文本处理函数**：
+**文本处理函数**：  
 `SELECT vend_name, UPPER(vend_name) AS vend_name_upcase FROM Vendors ORDER BY vend_name；`  
 * LEFT() 返回字符串左边的字符
 * LENGTH() 字符串的长度
@@ -197,7 +197,7 @@ SOUNDEX是一个将任何文本串转换为描述其语音表示的字母数字�
 * SQRT() 取平方根  
 
 **日期和时间处理函数**：    
-日期和时间采用相应的数据类型存储在表中，每种DBMS都有自己的特殊形式
+日期和时间采用相应的数据类型存储在表中，每种DBMS都有自己的特殊形式  
 `SELECT order_num FROM Orders WHERE strftime('%y', order_date) = '2012';   # SQLite实现`  
 
 # 第九课：汇总数据
@@ -237,32 +237,35 @@ SOUNDEX是一个将任何文本串转换为描述其语音表示的字母数字�
 `SELECT AVG(prod_price) AS avg_price, MAX(prod_price) AS max_price, MIN(prod_price) AS min_price, COUNT(*) AS num_items FROM Products`  
 在指定别名以包含某个聚集函数的结果时，不应该使用表中实际的列名，虽然也合法；聚集函数很高效，它们返回结果一般比在客户端程序中计算要快得多
 
-第十课：分组数据
-数据分组：
-使用分组可以将数据分为多个逻辑组，对每个组进行聚集计算
-创建分组：
-SELECT vend_id, COUNT(*) AS num_prods FROM Products GROUP by vend_id;
-GROUP BY指示DBMS按照vend_id排序并分组数据，这就对每个vend_id而不是整个表计算num_prods一次
-1：GROUP BY指示DBMS分组数据，然后对每个组而不是整个结果进行聚集
-2：GROUP BY子句可以包含任意数目的列，因此可以对分组嵌套，更细致的分组数据
-3：如果GROUP BY子句中嵌套了分组，数据将在最后指定的分组上进行汇总，即建立分组时，对指定的所有列一起计算
-4：GROUP BY子句列出的每一列都必须是检索列或有效的表达式，但不能是聚集函数，如果在SELECT中使用表达式，则必须在GROUP BY子句中指定相同的表达式，不能使用别名
-5：大多数SQL实现不允许GROUP BY列带有长度可变的数据类型，如文本或备注型字段
-6：除了聚集计算语句外，SELECT语句中每一列都必须在GROUP BY子句中给出
-7：如果分组列中包含具有NULL值的行，则NULL作为一个分组返回，若有多行NULL，它们被分为一组
-8：GROUP BY子句必须出现在WHERE子句之后，ORDER BY子句之前
-过滤分组：
-目前所学过的所有类型的WHERE子句都可以用HAVING来替代，唯一差别是WHERE过滤行，HAVING过滤分组
-SELECT cust_id, COUNT(*) AS orders FROM Orders GROUP BY cust_id HAVING COUNT(*) <2;
-此处WHERE将不起作用，COUNT作用于cust_id的分组；WHERE在数据分组前进行过滤，HAVING在数据分组后进行过滤，WHERE排除的行不包括在分组中，这可能会改变计算值，从而影响HAVING子句中基于这些值过滤掉的分组
-SELECT vend_id, prod_price, COUNT(*) AS num_prods FROM Products WHERE prod_price >= 4 GROUP BY vend_id HAVING COUNT(*) >=2;
-先将prod_price小于4的剔除，再按vend_id分组，每个分组行数大于2的再列出来
-HAVING和WHERE非常类似，如果不指定GROUP BY，则大多数DBMS会同等对待它们，使用HAVING时应该结合GROUP BY子句，而WHERE子句只是用于标准的行级过滤
-分组与排序：
-ORDER BY对产生的输出排序；任意列都可以使用，甚至非选择的列也可以使用；不一定需要使用
-GROUP BY对行分组，但输出可能不是分组的顺序；只可能使用选择列或表达式，而且必须使用每个选择列表达式；如果与聚集函数一起使用列或表达式，则必选使用
-一般在使用GROUP BY子句时，应该给出ORDER BY子句，这是保证数据正确排序的唯一方法，千万不能依赖GROUP BY排序顺序
-SELECT order_num, COUNT(*) AS items FROM OrderItems GROUP BY order_num HAVING COUNT(*) >=3 ORDER BY items, order_num;
+# 第十课：分组数据
+**数据分组**：  
+使用分组可以将数据分为多个逻辑组，对每个组进行聚集计算  
+
+**创建分组**：  
+`SELECT vend_id, COUNT(*) AS num_prods FROM Products GROUP by vend_id;`  
+GROUP BY指示DBMS按照vend_id排序并分组数据，这就对每个vend_id而不是整个表计算num_prods一次  
+1. GROUP BY指示DBMS分组数据，然后对每个组而不是整个结果进行聚集
+2. GROUP BY子句可以包含任意数目的列，因此可以对分组嵌套，更细致的分组数据
+3. 如果GROUP BY子句中嵌套了分组，数据将在最后指定的分组上进行汇总，即建立分组时，对指定的所有列一起计算
+4. GROUP BY子句列出的每一列都必须是检索列或有效的表达式，但不能是聚集函数，如果在SELECT中使用表达式，则必须在GROUP BY子句中指定相同的表达式，不能使用别名
+5. 大多数SQL实现不允许GROUP BY列带有长度可变的数据类型，如文本或备注型字段
+6. 除了聚集计算语句外，SELECT语句中每一列都必须在GROUP BY子句中给出
+7. 如果分组列中包含具有NULL值的行，则NULL作为一个分组返回，若有多行NULL，它们被分为一组
+8. GROUP BY子句必须出现在WHERE子句之后，ORDER BY子句之前  
+
+**过滤分组**：  
+目前所学过的所有类型的WHERE子句都可以用HAVING来替代，唯一差别是WHERE过滤行，HAVING过滤分组  
+`SELECT cust_id, COUNT(*) AS orders FROM Orders GROUP BY cust_id HAVING COUNT(*) <2;`  
+此处WHERE将不起作用，COUNT作用于cust_id的分组；WHERE在数据分组前进行过滤，HAVING在数据分组后进行过滤，WHERE排除的行不包括在分组中，这可能会改变计算值，从而影响HAVING子句中基于这些值过滤掉的分组  
+`SELECT vend_id, prod_price, COUNT(*) AS num_prods FROM Products WHERE prod_price >= 4 GROUP BY vend_id HAVING COUNT(*) >=2;`  
+先将prod_price小于4的剔除，再按vend_id分组，每个分组行数大于2的再列出来  
+HAVING和WHERE非常类似，如果不指定GROUP BY，则大多数DBMS会同等对待它们，使用HAVING时应该结合GROUP BY子句，而WHERE子句只是用于标准的行级过滤  
+
+**分组与排序**：
+ORDER BY对产生的输出排序；任意列都可以使用，甚至非选择的列也可以使用；不一定需要使用  
+GROUP BY对行分组，但输出可能不是分组的顺序；只可能使用选择列或表达式，而且必须使用每个选择列表达式；如果与聚集函数一起使用列或表达式，则必选使用  
+一般在使用GROUP BY子句时，应该给出ORDER BY子句，这是保证数据正确排序的唯一方法，千万不能依赖GROUP BY排序顺序  
+`SELECT order_num, COUNT(*) AS items FROM OrderItems GROUP BY order_num HAVING COUNT(*) >=3 ORDER BY items, order_num;`  
 
 第十一课：使用子查询
 子查询：
