@@ -182,6 +182,7 @@ SELECT语句为测试、检验函数和计算提供了很好的方法，虽然�
 * RTRIM() 去掉右边空格
 * SOUNDEX() 返回字符串的SOUNDEX值
 SOUNDEX是一个将任何文本串转换为描述其语音表示的字母数字模式的算法，考虑了类似的发音字符和音节，使得能对字符串进行发音比较而不是字母比较；SOUNDEX不是SQL的概念，但是大多数DBMS都提供了支持；如果在创建SQLite时使用了SQLITE_SOUNDEX编译时选项，那么SOUNDEX就可以在SQLite中使用，SQLITE_SOUNDEX不是默认的编译时选项，所有大多SQLite的实现都不支持SOUNDEX  
+
 `SELECT cust_name, cust_contact FROM Customers WHERE SOUNDEX(cust_contact)=SOUNDEX('Michael Green');`  
 则可搜索出'Michelle Green'  
 
@@ -194,39 +195,46 @@ SOUNDEX是一个将任何文本串转换为描述其语音表示的字母数字�
 * EXP() 取指数
 * PI() 取PI
 * SQRT() 取平方根  
-**日期和时间处理函数**：  
+
+**日期和时间处理函数**：    
 日期和时间采用相应的数据类型存储在表中，每种DBMS都有自己的特殊形式
 `SELECT order_num FROM Orders WHERE strftime('%y', order_date) = '2012';   # SQLite实现`  
 
-第九课：汇总数据
-经常需要汇总数据而不是把它们检索出来，比如确定表中行数、获取表中某些行的和、找出表列的最大值平均数；与数据处理函数不同，SQL的聚集函数在主要DBMS获得了相当一致的支持
-聚集函数：对某些运行的函数，计算并返回一个值
-AVG()：返回某列的平均值
-SELECT AVG(prod_price) AS avg_price FROM Products;
-也可返回特定列或行的平均数
-SELECT AVG(prod_price) AS avg_price FROM Products where vend_id='DLL01';
-要获取多个列的平均值，必须使用多个AVG函数，默认忽略值为NULL的行
-COUNT()：返回某列的行数
-COUNT(*)：不管行的值是否为空，总是统计
-SELECT COUNT(*) from Customers;
-COUNT(column)：对特定列仅统计值不为空的行
-SELECT COUNT(cust_email) AS num_email from Customers;
-MAX()：返回某列最大值
-SELECT MAX(prod_price) AS max_price from Products;
+# 第九课：汇总数据
+经常需要汇总数据而不是把它们检索出来，比如确定表中行数、获取表中某些行的和、找出表列的最大值平均数；与数据处理函数不同，SQL的聚集函数在主要DBMS获得了相当一致的支持  
+**聚集函数**：  
+对某些运行的函数，计算并返回一个值  
+* AVG()：返回某列的平均值  
+`SELECT AVG(prod_price) AS avg_price FROM Products;`  
+
+也可返回特定列或行的平均数  
+`SELECT AVG(prod_price) AS avg_price FROM Products where vend_id='DLL01';`  
+
+要获取多个列的平均值，必须使用多个AVG函数，默认忽略值为NULL的行  
+* COUNT()：返回某列的行数
+* COUNT(\*)：不管行的值是否为空，总是统计
+* SELECT COUNT(\*) from Customers;
+* COUNT(column)：对特定列仅统计值不为空的行  
+`SELECT COUNT(cust_email) AS num_email from Customers;`  
+* MAX()：返回某列最大值  
+`SELECT MAX(prod_price) AS max_price from Products;`  
 虽然MAX一般能找出最大的数值或日期，但许多DBMS运行将它用了返回任意列的最大值，包括文本列，此时返回的是按该列排序后的最后一行，MAX默认忽略值为NULL的行
-MIN()：返回某列最小值，默认忽略值为NULL的行
-SELECT MIN(prod_price) AS max_price from Products;
-SUM()：返回某列值之和，默认忽略值为NULL的行
-SELECT SUM(quantity) AS total_quantity FROM OrderItems where order_num=20005;
-也可用来合计计算值
-SELECT SUM(item_price*quantity) AS total_price FROM OrderItems where order_num=20005；
-聚合不同值：
-1：可对所有行执行计算，这是默认行为
-2：只包括不同的列，指定DISTINCT参数
-SELECT AVG(DISTINCT prod_price) AS avg_price FROM Products where vend_id='DLL01';
-会自动剔除价格相同的行；DISTINCT必须使用列名，不能用于计算或表达式；只能用于COUNT(column)，不能用于COUNT(*)；虽然从技术上可用于MAX或MIN，但是无价值，不管是否考虑不同值，结果都是一样
-组合聚集函数：
-SELECT AVG(prod_price) AS avg_price, MAX(prod_price) AS max_price, MIN(prod_price) AS min_price, COUNT(*) AS num_items FROM Products
+* MIN()：返回某列最小值，默认忽略值为NULL的行  
+`SELECT MIN(prod_price) AS max_price from Products;`  
+* SUM()：返回某列值之和，默认忽略值为NULL的行  
+`SELECT SUM(quantity) AS total_quantity FROM OrderItems where order_num=20005;`  
+也可用来合计计算值  
+`SELECT SUM(item_price*quantity) AS total_price FROM OrderItems where order_num=20005；`  
+
+**聚合不同值**：  
+* 可对所有行执行计算，这是默认行为
+* 只包括不同的列，指定DISTINCT参数  
+
+`SELECT AVG(DISTINCT prod_price) AS avg_price FROM Products where vend_id='DLL01';`  
+会自动剔除价格相同的行；DISTINCT必须使用列名，不能用于计算或表达式；只能用于COUNT(column)，不能用于COUNT(\*)；虽然从技术上可用于MAX或MIN，但是无价值，不管是否考虑不同值，结果都是一样  
+
+**组合聚集函数**：  
+`SELECT AVG(prod_price) AS avg_price, MAX(prod_price) AS max_price, MIN(prod_price) AS min_price, COUNT(*) AS num_items FROM Products`  
 在指定别名以包含某个聚集函数的结果时，不应该使用表中实际的列名，虽然也合法；聚集函数很高效，它们返回结果一般比在客户端程序中计算要快得多
 
 第十课：分组数据
