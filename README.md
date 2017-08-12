@@ -344,63 +344,75 @@ SQLite仅支持LEFT OUTER JOIN，左外联结和右外联结的唯一差别是�
 **使用左外联结包含所有顾客，甚至包含没有任何订单的顾客**：  
 `SELECT Customers.cust_id, COUNT(Orders.order_num) AS num_ord FROM Customers LEFT OUTTER JOIN Orders ON Customers.cust_id = Orders.cust_id GROUP BY Customers.cust_id`  
 
-第十四课：组合查询
-SQL也允许多个查询（多条SELECT语句），并将结果作为一个查询结果返回，主要有两种使用场景：
-1：在一个查询中从不同的表返回结构数据
-2：对一个表执行多个查询，按一个程序返回数据
-创建组合查询：
-任何具有多个WHERE子句的SELECT语句都可以作为一个组合查询
-SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_state IN('IL', 'IN', 'MI') OR cust_name='Fun4All'
-两个WHERE子句用UNION联结：
-SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_state IN('IL', 'IN', 'MI')
+# 第十四课：组合查询
+SQL也允许多个查询（多条SELECT语句），并将结果作为一个查询结果返回，主要有两种使用场景：  
+* 在一个查询中从不同的表返回结构数据
+* 对一个表执行多个查询，按一个程序返回数据
+
+**创建组合查询**：  
+任何具有多个WHERE子句的SELECT语句都可以作为一个组合查询  
+`SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_state IN('IL', 'IN', 'MI') OR cust_name='Fun4All'
+`  
+
+**两个WHERE子句用UNION联结**：  
+```SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_state IN('IL', 'IN', 'MI')
 UNION
-SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_name='Fun4All'
-在简单的例子中，使用UNION可能比WHERE子句更为复杂，但是对于较为复杂的过滤条件，或从多个表检索数据，使用UNION处理更简单，其使用规则：
-1：必须由两条或以上SELECT语句组成，语句间用UNION分隔
-2：每个查询必须包含相同的列、表达式或聚集函数，出现次序不重要
-3：列数据类型必须兼容
-包含或取消重复的行：
-UNION从查询结果自动去掉了重复的行，其行为与一条SELECT语句的多个WHERE子句条件一样，如果想返回所有行，可使用UNION ALL，这是WHERE子句实现不了的功能
-对组合查询结果排序：
+SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_name='Fun4All' 
+```
+在简单的例子中，使用UNION可能比WHERE子句更为复杂，但是对于较为复杂的过滤条件，或从多个表检索数据，使用UNION处理更简单，其使用规则：  
+* 必须由两条或以上SELECT语句组成，语句间用UNION分隔
+* 每个查询必须包含相同的列、表达式或聚集函数，出现次序不重要
+* 列数据类型必须兼容  
+
+**包含或取消重复的行**：  
+UNION从查询结果自动去掉了重复的行，其行为与一条SELECT语句的多个WHERE子句条件一样，如果想返回所有行，可使用UNION ALL，这是WHERE子句实现不了的功能  
+
+**对组合查询结果排序**：  
 在用UNION组合查询时，只能使用一条ORDER BY子句，必须位于最后一条SELECT语句之后，但是它用来对所有的SELECT语句的返回结果进行排序
 
-第十五课：插入数据
-插入完整的行：
-INSERT INTO Customers VALUES('1000000006', 'Toy Land', '123 Any Street', 'New York', 'NY', '11111', 'USA', NULL, NULL)
-没列必须提供值，如果没有，应该写NULL，各个列必须按照表中定义顺序依次填充；虽然语法简单，但是并不安全，插入数据不应该依赖表中列的次序，下次表结构变化时无法保证列的次序不变换
-更为安全的写法：
-INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country, cust_contact, cust_email)
-VALUES('1000000007', 'Jimmy Land', '234 Any Street', 'New York', 'NY', '22222', 'USA', NULL, NULL);
-因为提供了列名，VALUES必须以其指定的次序填充，而不是表中定义的实际次序，其优点是即使表的结构变换也不会影响该语句的正常执行
-插入部分行：
-INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country)
-VALUES('1000000008', 'Lucky Land', '345 Any Street', 'New York', 'NY', '33333', 'USA');
-省略的列必须满足以下条件：
-1：该列定义允许NULL值（无值或空值）
-2：在表定义中给出默认值，如果插入数据不指定，则使用默认值
-插入检索处理的数据：
-INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country) 
+# 第十五课：插入数据
+**插入完整的行**：  
+`INSERT INTO Customers VALUES('1000000006', 'Toy Land', '123 Any Street', 'New York', 'NY', '11111', 'USA', NULL, NULL)`  
+没列必须提供值，如果没有，应该写NULL，各个列必须按照表中定义顺序依次填充；虽然语法简单，但是并不安全，插入数据不应该依赖表中列的次序，下次表结构变化时无法保证列的次序不变换  
+
+**更为安全的写法**：  
+`INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country, cust_contact, cust_email)
+VALUES('1000000007', 'Jimmy Land', '234 Any Street', 'New York', 'NY', '22222', 'USA', NULL, NULL);`  
+因为提供了列名，VALUES必须以其指定的次序填充，而不是表中定义的实际次序，其优点是即使表的结构变换也不会影响该语句的正常执行  
+
+**插入部分行**：  
+`INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country)
+VALUES('1000000008', 'Lucky Land', '345 Any Street', 'New York', 'NY', '33333', 'USA');`  
+省略的列必须满足以下条件：  
+* 该列定义允许NULL值（无值或空值）
+* 在表定义中给出默认值，如果插入数据不指定，则使用默认值  
+
+**插入检索处理的数据**：  
+`INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country) 
 Select  cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country
-From CustNew
-INSERT通常只能插入一行，但是INSERT SELECT可以一次性插入多行
-从一个表复制到另一个表：
-SELECT * INTO CustCopy FROM Customers;	--SqLite不支持Select Into
-CREATE TABLE CustCopy AS SELECT * FROM Customers WHERE Customers.cust_city = 'Chicago';
+From CustNew`  
+INSERT通常只能插入一行，但是INSERT SELECT可以一次性插入多行  
+
+**从一个表复制到另一个表**：  
+`SELECT * INTO CustCopy FROM Customers;	--SqLite不支持Select Into
+CREATE TABLE CustCopy AS SELECT * FROM Customers WHERE Customers.cust_city = 'Chicago';`  
 如果只想复制部分列，需要明确指出列名，如果只想复制部分行，需要加过滤条件
 
-第十六课：更新和删除数据
-更新数据：
-UPDATE Customers SET cust_email = 'sky@xunrui.com.cn', cust_contact = 'sky' WHERE cust_id = '1000000005'
-更新多个列时，只需一个SET命令，每个列之间用逗号分隔
-删除数据：
-DELETE FROM Customers WHERE cust_id = '1000000006'
-DELETE不需要列名或通配符，删除整行或全部行，如果要删除指定列，要使用UPDATE语句（值设置为NULL），如果要快速删除所有行，可使用TRUNCATE TABLE语句，速度更快
-使用外键确保引用完整性的一个好处是：DBMS通常可以防止删除某个关系需要用到的行
-避免删除或更新了整个表，使用UPDATE或DELETE需遵循以下原则：
-1：除非打算更新或删除每一行，否则一定要带WHERE子句
-2：保证每个表都有主键
-3：使用强制实施引用完整性的数据库，这样DBMS将不允许删除其数据与其他表相关联的行
-4：有的DBMS允许数据库管理员施加约束，防止执行不带WHERE子句的UPDATE或DELETE语句，如果有这特性，就使用
+# 第十六课：更新和删除数据
+**更新数据**：  
+`UPDATE Customers SET cust_email = 'sky@xunrui.com.cn', cust_contact = 'sky' WHERE cust_id = '1000000005'`  
+更新多个列时，只需一个SET命令，每个列之间用逗号分隔  
+
+**删除数据**：  
+`DELETE FROM Customers WHERE cust_id = '1000000006'`  
+DELETE不需要列名或通配符，删除整行或全部行，如果要删除指定列，要使用UPDATE语句（值设置为NULL），如果要快速删除所有行，可使用TRUNCATE TABLE语句，速度更快  
+使用外键确保引用完整性的一个好处是：DBMS通常可以防止删除某个关系需要用到的行  
+
+避免删除或更新了整个表，使用UPDATE或DELETE需遵循以下原则：  
+1. 除非打算更新或删除每一行，否则一定要带WHERE子句
+2. 保证每个表都有主键
+3. 使用强制实施引用完整性的数据库，这样DBMS将不允许删除其数据与其他表相关联的行
+4. 有的DBMS允许数据库管理员施加约束，防止执行不带WHERE子句的UPDATE或DELETE语句，如果有这特性，就使用
 
 第十七课：创建和操纵表
 创建表：
