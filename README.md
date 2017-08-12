@@ -414,8 +414,9 @@ DELETE不需要列名或通配符，删除整行或全部行，如果要删除�
 3. 使用强制实施引用完整性的数据库，这样DBMS将不允许删除其数据与其他表相关联的行
 4. 有的DBMS允许数据库管理员施加约束，防止执行不带WHERE子句的UPDATE或DELETE语句，如果有这特性，就使用
 
-第十七课：创建和操纵表
-创建表：
+# 第十七课：创建和操纵表
+**创建表**：  
+```
 CREATE TABLE Products 
 (
 prod_id 		CHAR (10) 	NOT NULL,
@@ -433,67 +434,83 @@ vend_id
 )
 REFERENCES Vendors (vend_id)
 );
-对于MySWL，varchar必须替换为text，对于DB2，必须去掉最后一列的NULL，在创建新的表时，指定的表名必须不存在，否则会出错，防止意外覆盖已有的表，SQL要求首先手工删除该表，然后重建它，而不是简单的用创建语句覆盖它
-NULL：就是没有值或缺值，不允许NULL的列不接受没有列值的行，在插入或更新行时，必须指定列值，只有不允许NULL的列可作为主键
-SQL允许默认值，用DEFAULT指定，通常用于日期，遗憾的是，获取系统日期的命令在不同的DBMS几乎都不一样
+```  
+对于MySWL，varchar必须替换为text，对于DB2，必须去掉最后一列的NULL，在创建新的表时，指定的表名必须不存在，否则会出错，防止意外覆盖已有的表，SQL要求首先手工删除该表，然后重建它，而不是简单的用创建语句覆盖它  
+
+**NULL**：  
+就是没有值或缺值，不允许NULL的列接受没有列值的行，在插入或更新行时，必须指定列值，只有不允许NULL的列可作为主键  
+SQL允许默认值，用DEFAULT指定，通常用于日期，遗憾的是，获取系统日期的命令在不同的DBMS几乎都不一样  
+```
 Access 	NOW()
 DB2		CURRENT_DATE
 MySQL	CURRENT_DATE()
 Oracle	SYSDATE
 SQL Server	GETDATE()
 SQLite	date('now')
-更新表：
-虽然所有的DBMS都支持ALTER TABLE，但它们所允许更新的内容差别很大
-1：理想情况下，不要在表中包含数据时对其更新，应该在表的设计过程中充分考虑未来可能的需求，避免今后对表的结构做大改动
-2：所有的DBMS都允许给现有的表增加列，但对列的数据类型有限制
-3：许多DBMS不允许删除或更改表中的列
-4：多数DBMS允许重命名表中的列
-5：许多DBMS限制对已经有数据的列进行修改，但未填充数据的列集合没有限制
-ALTER TABLE Vendors ADD vend_phone CHAR(20)	--这可能是所有DBMS都支持的唯一操作
-复杂的表结构更改一般需要手动操作：
-1：用新的列布局新建一个表
-2：使用INSERT SELECT语句从旧表复制数据到新表
-3：检验包含所需数据的新表
-4：重命名旧表（如果确定，删除）
-5：用旧表名重命名新表
-6：根据需要，重新创建触发器、存储过程、索引和外键
-SQLite对使用ALTER TABLE执行的操作有所限制，最重要的一个是不支持使用ALTER TABLE定义主键和外键，这些必须在创建表时指定
-使用ALTER TABLE要极为小心，应提前做好备份，如果增加了不需要的列，可能无法删除，如果删除了不应该删除的列，可能会丢失该列中的所有数据
-删除表：
-删除表没有确认，也不能撤销，执行这条语句将永久删除该表。许多DBMS允许强制实施有关规则，防止删除与其他表关联的表，如果由此功能，需开启
-DROP TABLE CustCopy;
+```  
 
-第十八课：视图
-Access不支持视图，MySQL从版本5开始支持视图，SQLite仅支持只读视图
-为什么使用视图：
-1：重用SQL语句
-2：简化复杂的SQL操作
-3：使用表的一部分而不是整个表
-4：保护数据，可以授予用户访问表的特定部分的权限，而不是整个表的访问权限
-5：更改数据格式和表示，视图可以返回与底层表的表示和格式不同的数据
-可以用与表相同的方式使用视图，视图仅仅是用来查看存储在别处数据的一种设施，本身不包含数据，返回的数据是从其他表检索出来的；在添加或更改这些表的数据时，视图将返回改变过的数据；因为视图不包含数据，所以每次使用视图时，必须处理查询执行所需要的所有检索；如果用多个联结和过滤创建了复杂的视图或者嵌套了视图，性能可能会下降的很厉害
-视图的规则与限制：
-1：与表一样，视图必须唯一命名，不能给视图取与别的视图或表相同的名字
-2：可以创建的视图数目无限制
-3：创建视图，必须有足够的访问权限，通常由数据库管理员授予
-4：视图可以嵌套，但是严重影响性能
-5：许多DBMS禁止在试图查询中使用ORDER BY子句
-6：有些DBMS要求对返回的所有列进行命名，如果列是计算字段，需要使用别名
-7：试图不能索引，也不能有关联的触发器或默认值
-8：有些DBMS只能创建只读视图
-9：有些DBMS只能创建这样的试图-不能进行导致行不再属于视图的插入或更新
-创建视图：
-与CREATE TABLE一样，CREATE VIEW只能创建不存在的视图
-CREATE VIEW ProductCustomers AS SELECT cust_name, cust_contact, prod_id FROM Customers, Orders, OrderItems WHERE Customers.cust_id=Orders.cust_id AND OrderItems.order_num=Orders.order_num;
-SELECT cust_name, cust_contact FROM ProductCustomers WHERE prod_id='RGAN01'
-创建不绑定特定数据的视图是一个好办法，用WHERE子句再进行过滤
-用视图重新格式化检索出的数据：
-CREATE VIEW VendorLocations AS SELECT RTRIM(vend_name) || '(' || RTRIM(vend_country) || ')' AS vend_title FROM Vendors;
-用视图过滤不想要的数据：
-CREATE VIEW CustomerEmailList AS SELECT cust_id, cust_name, cust_email FROM Customers WHERE cust_email IS NOT NULL;
-使用视图与计算字段：
-CREATE VIEW OrderItemsExpanded AS SELECT order_num, prod_id, quantity, item_price, quantity*item_price AS expanded_price FROM OrderItems;
-SELECT * FROM OrderItemsExpanded WHERE order_num=20008;
+**更新表**：  
+虽然所有的DBMS都支持ALTER TABLE，但它们所允许更新的内容差别很大
+1. 理想情况下，不要在表中包含数据时对其更新，应该在表的设计过程中充分考虑未来可能的需求，避免今后对表的结构做大改动
+2. 所有的DBMS都允许给现有的表增加列，但对列的数据类型有限制
+3. 许多DBMS不允许删除或更改表中的列
+4. 多数DBMS允许重命名表中的列
+5. 许多DBMS限制对已经有数据的列进行修改，但未填充数据的列集合没有限制  
+
+`ALTER TABLE Vendors ADD vend_phone CHAR(20)	` --这可能是所有DBMS都支持的唯一操作  
+
+**复杂的表结构更改一般需要手动操作**：  
+1. 用新的列布局新建一个表
+2. 使用INSERT SELECT语句从旧表复制数据到新表
+3. 检验包含所需数据的新表
+4. 重命名旧表（如果确定，删除）
+5. 用旧表名重命名新表
+6. 根据需要，重新创建触发器、存储过程、索引和外键  
+
+SQLite对使用ALTER TABLE执行的操作有所限制，最重要的一个是不支持使用ALTER TABLE定义主键和外键，这些必须在创建表时指定
+使用ALTER TABLE要极为小心，应提前做好备份，如果增加了不需要的列，可能无法删除，如果删除了不应该删除的列，可能会丢失该列中的所有数据  
+
+**删除表**：  
+删除表没有确认，也不能撤销，执行这条语句将永久删除该表。许多DBMS允许强制实施有关规则，防止删除与其他表关联的表，如果有此功能，需开启  
+`DROP TABLE CustCopy;`  
+
+# 第十八课：视图
+Access不支持视图，MySQL从版本5开始支持视图，SQLite仅支持只读视图  
+
+**为什么使用视图**：  
+1. 重用SQL语句
+2. 简化复杂的SQL操作
+3. 使用表的一部分而不是整个表
+4. 保护数据，可以授予用户访问表的特定部分的权限，而不是整个表的访问权限
+5. 更改数据格式和表示，视图可以返回与底层表的表示和格式不同的数据
+可以用与表相同的方式使用视图，视图仅仅是用来查看存储在别处数据的一种设施，本身不包含数据，返回的数据是从其他表检索出来的；在添加或更改这些表的数据时，视图将返回改变过的数据；因为视图不包含数据，所以每次使用视图时，必须处理查询执行所需要的所有检索；如果用多个联结和过滤创建了复杂的视图或者嵌套了视图，性能可能会下降的很厉害  
+
+**视图的规则与限制**：  
+1. 与表一样，视图必须唯一命名，不能给视图取与别的视图或表相同的名字
+2. 可以创建的视图数目无限制
+3. 创建视图，必须有足够的访问权限，通常由数据库管理员授予
+4. 视图可以嵌套，但是严重影响性能
+5. 许多DBMS禁止在视图查询中使用ORDER BY子句
+6. 有些DBMS要求对返回的所有列进行命名，如果列是计算字段，需要使用别名
+7. 视图不能索引，也不能有关联的触发器或默认值
+8. 有些DBMS只能创建只读视图
+9. 有些DBMS只能创建这样的试图-不能进行导致行不再属于视图的插入或更新  
+
+**创建视图**：  
+与CREATE TABLE一样，CREATE VIEW只能创建不存在的视图  
+```CREATE VIEW ProductCustomers AS SELECT cust_name, cust_contact, prod_id FROM Customers, Orders, OrderItems WHERE Customers.cust_id=Orders.cust_id AND OrderItems.order_num=Orders.order_num; 
+SELECT cust_name, cust_contact FROM ProductCustomers WHERE prod_id='RGAN01'```  
+创建不绑定特定数据的视图是一个好办法，用WHERE子句再进行过滤  
+
+**用视图重新格式化检索出的数据**：  
+`CREATE VIEW VendorLocations AS SELECT RTRIM(vend_name) || '(' || RTRIM(vend_country) || ')' AS vend_title FROM Vendors;`  
+
+**用视图过滤不想要的数据**：  
+`CREATE VIEW CustomerEmailList AS SELECT cust_id, cust_name, cust_email FROM Customers WHERE cust_email IS NOT NULL;`  
+
+**使用视图与计算字段**：  
+```CREATE VIEW OrderItemsExpanded AS SELECT order_num, prod_id, quantity, item_price, quantity*item_price AS expanded_price FROM OrderItems;  
+SELECT * FROM OrderItemsExpanded WHERE order_num=20008;```  
 视图是虚拟的表，包含的不是数据而是根据需要检索数据的查询，视图提供了一种封装SELECT语句的方式，可以用来简化数据处理，重新格式化或保护基础数据
 
 第十九课：存储过程
