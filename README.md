@@ -234,7 +234,9 @@ SELECT Date();
 与几乎所有的DBMS同等的支持SQL语句不同，每个DBMS都有特定的函数，事实上，只有很少的几个函数被所有主要的DBMS支持。为了代码的可移植，许多SQL程序猿都不赞成使用特定功能的函数，但是不使用这些函数，编写某些应用程序就会很艰难  
 
 **文本处理函数**：  
-`SELECT vend_name, UPPER(vend_name) AS vend_name_upcase FROM Vendors ORDER BY vend_name；`  
+```
+SELECT vend_name, UPPER(vend_name) AS vend_name_upcase FROM Vendors ORDER BY vend_name；
+```
 * LEFT() 返回字符串左边的字符
 * LENGTH() 字符串的长度
 * LOWER() 转换为小写
@@ -244,7 +246,9 @@ SELECT Date();
 * SOUNDEX() 返回字符串的SOUNDEX值
 SOUNDEX是一个将任何文本串转换为描述其语音表示的字母数字模式的算法，考虑了类似的发音字符和音节，使得能对字符串进行发音比较而不是字母比较；SOUNDEX不是SQL的概念，但是大多数DBMS都提供了支持；如果在创建SQLite时使用了SQLITE_SOUNDEX编译时选项，那么SOUNDEX就可以在SQLite中使用，SQLITE_SOUNDEX不是默认的编译时选项，所有大多SQLite的实现都不支持SOUNDEX  
 
-`SELECT cust_name, cust_contact FROM Customers WHERE SOUNDEX(cust_contact)=SOUNDEX('Michael Green');`  
+```
+SELECT cust_name, cust_contact FROM Customers WHERE SOUNDEX(cust_contact)=SOUNDEX('Michael Green');
+```
 则可搜索出'Michelle Green'  
 
 **数值处理函数**：  
@@ -259,7 +263,9 @@ SOUNDEX是一个将任何文本串转换为描述其语音表示的字母数字�
 
 **日期和时间处理函数**：    
 日期和时间采用相应的数据类型存储在表中，每种DBMS都有自己的特殊形式  
-`SELECT order_num FROM Orders WHERE strftime('%y', order_date) = '2012';   # SQLite实现`  
+```
+SELECT order_num FROM Orders WHERE strftime('%y', order_date) = '2012';   # SQLite实现
+```
 
 # 第九课：汇总数据
 经常需要汇总数据而不是把它们检索出来，比如确定表中行数、获取表中某些行的和、找出表列的最大值平均数；与数据处理函数不同，SQL的聚集函数在主要DBMS获得了相当一致的支持  
@@ -267,36 +273,54 @@ SOUNDEX是一个将任何文本串转换为描述其语音表示的字母数字�
 **聚集函数**：  
 对某些运行的函数，计算并返回一个值  
 * AVG()：返回某列的平均值  
-`SELECT AVG(prod_price) AS avg_price FROM Products;`  
+```
+SELECT AVG(prod_price) AS avg_price FROM Products;
+```
 
 也可返回特定列或行的平均数  
-`SELECT AVG(prod_price) AS avg_price FROM Products where vend_id='DLL01';`  
+```
+SELECT AVG(prod_price) AS avg_price FROM Products where vend_id='DLL01';
+```
 
 要获取多个列的平均值，必须使用多个AVG函数，默认忽略值为NULL的行  
 * COUNT()：返回某列的行数
 * COUNT(\*)：不管行的值是否为空，总是统计
 * SELECT COUNT(\*) from Customers;
 * COUNT(column)：对特定列仅统计值不为空的行  
-`SELECT COUNT(cust_email) AS num_email from Customers;`  
+```
+SELECT COUNT(cust_email) AS num_email from Customers;
+```
 * MAX()：返回某列最大值  
-`SELECT MAX(prod_price) AS max_price from Products;`  
+```
+SELECT MAX(prod_price) AS max_price from Products;
+```
 虽然MAX一般能找出最大的数值或日期，但许多DBMS运行将它用了返回任意列的最大值，包括文本列，此时返回的是按该列排序后的最后一行，MAX默认忽略值为NULL的行
 * MIN()：返回某列最小值，默认忽略值为NULL的行  
-`SELECT MIN(prod_price) AS max_price from Products;`  
+```
+SELECT MIN(prod_price) AS max_price from Products;
+```
 * SUM()：返回某列值之和，默认忽略值为NULL的行  
-`SELECT SUM(quantity) AS total_quantity FROM OrderItems where order_num=20005;`  
+```
+SELECT SUM(quantity) AS total_quantity FROM OrderItems where order_num=20005;
+```
 也可用来合计计算值  
-`SELECT SUM(item_price*quantity) AS total_price FROM OrderItems where order_num=20005；`  
+```
+SELECT SUM(item_price*quantity) AS total_price FROM OrderItems where order_num=20005；
+```
 
 **聚合不同值**：  
 * 可对所有行执行计算，这是默认行为
 * 只包括不同的列，指定DISTINCT参数  
 
-`SELECT AVG(DISTINCT prod_price) AS avg_price FROM Products where vend_id='DLL01';`  
+```
+SELECT AVG(DISTINCT prod_price) AS avg_price FROM Products where vend_id='DLL01';
+```
 会自动剔除价格相同的行；DISTINCT必须使用列名，不能用于计算或表达式；只能用于COUNT(column)，不能用于COUNT(\*)；虽然从技术上可用于MAX或MIN，但是无价值，不管是否考虑不同值，结果都是一样  
 
 **组合聚集函数**：  
-`SELECT AVG(prod_price) AS avg_price, MAX(prod_price) AS max_price, MIN(prod_price) AS min_price, COUNT(*) AS num_items FROM Products`  
+```
+SELECT AVG(prod_price) AS avg_price, MAX(prod_price) AS max_price, MIN(prod_price) AS min_price, COUNT(*) AS num_items FROM Products
+```
 在指定别名以包含某个聚集函数的结果时，不应该使用表中实际的列名，虽然也合法；聚集函数很高效，它们返回结果一般比在客户端程序中计算要快得多
 
 # 第十课：分组数据
@@ -304,7 +328,9 @@ SOUNDEX是一个将任何文本串转换为描述其语音表示的字母数字�
 使用分组可以将数据分为多个逻辑组，对每个组进行聚集计算  
 
 **创建分组**：  
-`SELECT vend_id, COUNT(*) AS num_prods FROM Products GROUP by vend_id;`  
+```
+SELECT vend_id, COUNT(*) AS num_prods FROM Products GROUP by vend_id;
+```
 GROUP BY指示DBMS按照vend_id排序并分组数据，这就对每个vend_id而不是整个表计算num_prods一次  
 1. GROUP BY指示DBMS分组数据，然后对每个组而不是整个结果进行聚集
 2. GROUP BY子句可以包含任意数目的列，因此可以对分组嵌套，更细致的分组数据
@@ -317,9 +343,13 @@ GROUP BY指示DBMS按照vend_id排序并分组数据，这就对每个vend_id而
 
 **过滤分组**：  
 目前所学过的所有类型的WHERE子句都可以用HAVING来替代，唯一差别是WHERE过滤行，HAVING过滤分组  
-`SELECT cust_id, COUNT(*) AS orders FROM Orders GROUP BY cust_id HAVING COUNT(*) <2;`  
+```
+SELECT cust_id, COUNT(*) AS orders FROM Orders GROUP BY cust_id HAVING COUNT(*) <2;
+```
 此处WHERE将不起作用，COUNT作用于cust_id的分组；WHERE在数据分组前进行过滤，HAVING在数据分组后进行过滤，WHERE排除的行不包括在分组中，这可能会改变计算值，从而影响HAVING子句中基于这些值过滤掉的分组  
-`SELECT vend_id, prod_price, COUNT(*) AS num_prods FROM Products WHERE prod_price >= 4 GROUP BY vend_id HAVING COUNT(*) >=2;`  
+```
+SELECT vend_id, prod_price, COUNT(*) AS num_prods FROM Products WHERE prod_price >= 4 GROUP BY vend_id HAVING COUNT(*) >=2;
+```
 先将prod_price小于4的剔除，再按vend_id分组，每个分组行数大于2的再列出来  
 HAVING和WHERE非常类似，如果不指定GROUP BY，则大多数DBMS会同等对待它们，使用HAVING时应该结合GROUP BY子句，而WHERE子句只是用于标准的行级过滤  
 
@@ -327,19 +357,25 @@ HAVING和WHERE非常类似，如果不指定GROUP BY，则大多数DBMS会同等
 ORDER BY对产生的输出排序；任意列都可以使用，甚至非选择的列也可以使用；不一定需要使用  
 GROUP BY对行分组，但输出可能不是分组的顺序；只可能使用选择列或表达式，而且必须使用每个选择列表达式；如果与聚集函数一起使用列或表达式，则必选使用  
 一般在使用GROUP BY子句时，应该给出ORDER BY子句，这是保证数据正确排序的唯一方法，千万不能依赖GROUP BY排序顺序  
-`SELECT order_num, COUNT(*) AS items FROM OrderItems GROUP BY order_num HAVING COUNT(*) >=3 ORDER BY items, order_num;`  
+```
+SELECT order_num, COUNT(*) AS items FROM OrderItems GROUP BY order_num HAVING COUNT(*) >=3 ORDER BY items, order_num;
+```
 
 # 第十一课：使用子查询
 **子查询**：  
 任何SQL语句都是查询，但是此术语一般特指SELECT语句，SQL允许创建子查询，即嵌套在其他查询中的查询  
 
 **利用子查询进行过滤**：  
-`SELECT cust_name, cust_contact FROM Customers WHERE cust_id IN(SELECT cust_id FROM Orders WHERE order_num IN (SELECT order_num FROM OrderItems WHERE prod_id='RGAN01'));`  
+```
+SELECT cust_name, cust_contact FROM Customers WHERE cust_id IN(SELECT cust_id FROM Orders WHERE order_num IN (SELECT order_num FROM OrderItems WHERE prod_id='RGAN01'));
+```
 在SQL语句中，子查询总是由内往外；在WHERE子句中使用子查询可以编写出功能强大且很灵活的SQL语句，对于嵌套子查询的数目没有限制，不过由于性能限制，不能嵌套太多；作为子查询的SELECT语句只能查询单个列，企图查询多个列将返回错误；使用子查询并不总是执行这类数据检索的最有效办法  
 
 **作为计算字段使用子查询**：  
 使用子查询的另一个方法是创建计算字段  
-`SELECT cust_name, cust_state, (SELECT COUNT(*) FROM Orders WHERE Orders.cust_id=Customers.cust_id) AS orders FROM Customers ORDER BY cust_name;`  
+```
+SELECT cust_name, cust_state, (SELECT COUNT(*) FROM Orders WHERE Orders.cust_id=Customers.cust_id) AS orders FROM Customers ORDER BY cust_name;
+```
 orders是一个计算字段，由括号中的子查询建立  
 
 # 第十二课：联结表
@@ -349,7 +385,9 @@ orders是一个计算字段，由括号中的子查询建立
 * 数据不重复，可保持数据一致性  
 
 **创建联结**：  
-`SELECT vend_name, prod_name, prod_price FROM Vendors, Products WHERE Vendors.vend_id = Products.vend_id`  
+```
+SELECT vend_name, prod_name, prod_price FROM Vendors, Products WHERE Vendors.vend_id = Products.vend_id;
+```
 在联结两个表时，实际上是将第一个表中的每一行与第二个表中每一行配对，WHERE子句作为过滤条件，只包含那些匹配的行。要保证所有联结都有WHERE子句，否则DBMS将返回比想象多得多的数据  
 
 **笛卡尔积**：  
@@ -357,31 +395,47 @@ orders是一个计算字段，由括号中的子查询建立
 
 **內联结**：  
 基于两个表之间的相等测试，也叫等值联结  
-`SELECT vend_name, prod_name, prod_price FROM Vendors INNER JOIN Products ON Vendors.vend_id = Products.vend_id`  
+```
+SELECT vend_name, prod_name, prod_price FROM Vendors INNER JOIN Products ON Vendors.vend_id = Products.vend_id;
+```
 
 **联结多个表**：  
-`SELECT vend_name, prod_name, prod_price quantity FROM OrderItems, Products, Vendors WHERE Vendors.vend_id = Products.vend_id AND OrderItems.prod_id = Products.prod_id AND order_num = 20007`  
+```
+SELECT vend_name, prod_name, prod_price quantity FROM OrderItems, Products, Vendors WHERE Vendors.vend_id = Products.vend_id AND OrderItems.prod_id = Products.prod_id AND order_num = 20007;
+```
 不要联结不必要的表，联结的表越多，性能下降越厉害  
-`SELECT cust_name, cust_contact FROM Customers WHERE cust_id IN (SELECT cust_id FROM Orders WHERE order_num in (SELECT order_num FROM OrderItems WHERE prod_id = 'RGAN01'))`  
+```
+SELECT cust_name, cust_contact FROM Customers WHERE cust_id IN (SELECT cust_id FROM Orders WHERE order_num in (SELECT order_num FROM OrderItems WHERE prod_id = 'RGAN01'));
+```
 等同于：  
-`SELECT cust_name, cust_contact FROM Customers, Orders, OrderItems WHERE Customers.cust_id = Orders.cust_id AND OrderItems.order_num = Orders.order_num AND prod_id = 'RGAN01'`  
+```
+SELECT cust_name, cust_contact FROM Customers, Orders, OrderItems WHERE Customers.cust_id = Orders.cust_id AND OrderItems.order_num = Orders.order_num AND prod_id = 'RGAN01'
+```
 执行一个任务给定的SQL操作一般不止一种方法，很少有绝对正确或绝对错误的方法，性能可能受操作类型，所使用的DBMS，表中数据量，是否存在索引或键等条件影响
 
 # 第十三课：创建高级联结
 **使用表别名**：  
-`SELECT cust_name, cust_contact FROM Customers AS C, Orders AS O, OrderItems AS OI WHERE C.cust_id = O.cust_id AND O.order_num = OI.order_num AND prod_id = 'RGAN01'`  
+```
+SELECT cust_name, cust_contact FROM Customers AS C, Orders AS O, OrderItems AS OI WHERE C.cust_id = O.cust_id AND O.order_num = OI.order_num AND prod_id = 'RGAN01'
+```
 可以缩短SQL语句，允许在一条SELECT语句中多次使用相同的表  
 ORACLE不支持AS关键字，要在ORACLE中使用别名，可以不用AS，简单指定列名 Customers C  
 
 **自联结**：  
-`SELECT cust_name, cust_id, cust_contact FROM Customers WHERE cust_name = (SELECT cust_name FROM Customers WHERE cust_contact = 'Jim Jones');`  
+```
+SELECT cust_name, cust_id, cust_contact FROM Customers WHERE cust_name = (SELECT cust_name FROM Customers WHERE cust_contact = 'Jim Jones');
+```
 等同于：  
-`SELECT c1.cust_name, c1.cust_id, c1.cust_contact FROM Customers AS c1, Customers AS c2 WHERE c1.cust_name = c2.cust_name AND c2.cust_contact = 'Jim Jones';`  
+```
+SELECT c1.cust_name, c1.cust_id, c1.cust_contact FROM Customers AS c1, Customers AS c2 WHERE c1.cust_name = c2.cust_name AND c2.cust_contact = 'Jim Jones';
+```
 许多DBMS处理联结比处理子查询要快得多  
 
 **自然联结**：  
 无论何时对表进行联结，应至少有一列不止出现在一个表中。标准的联结返回所有数据，相同的列甚至多次出现，自然联结排除多次出现，使每一列只返回一次，这项工作不是由系统完成，一般通过对一个表使用通配符SELECT \*，而对其他表的列使用明确的子集完成  
-`SELECT C.*, O.order_num , O.order_date, OI.prod_id, OI.quantity, OI.item_price FROM Customers AS C, Orders AS O, OrderItems AS OI WHERE C.cust_id=O.cust_id AND OI.order_num=O.order_num AND prod_id='RGAN01'`  
+```
+SELECT C.*, O.order_num , O.order_date, OI.prod_id, OI.quantity, OI.item_price FROM Customers AS C, Orders AS O, OrderItems AS OI WHERE C.cust_id=O.cust_id AND OI.order_num=O.order_num AND prod_id='RGAN01'
+```
 通配符只对第一个表使用，所有其他列明确列出，所以没有重复列被检索，我们迄今建立的每个内联结都是自然联结，很可能永远都不会用到不是自然连接的内连接  
 
 **外联结**：  
@@ -390,21 +444,31 @@ SQLite仅支持LEFT OUTER JOIN，左外联结和右外联结的唯一差别是�
 
 **內联结**：  
 检索出所有顾客及其订单  
-`SELECT Customers.cust_id, Orders.order_num FROM Customers INNER JOIN Orders ON Customers.cust_id = Orders.cust_id`  
+```
+SELECT Customers.cust_id, Orders.order_num FROM Customers INNER JOIN Orders ON Customers.cust_id = Orders.cust_id
+```
 
 **外联结**：  
 检索出包括没有订单的顾客在内的所有顾客  
-`SELECT Customers.cust_id, Orders.order_num FROM Customers LEFT OUTER JOIN Orders ON Customers.cust_id = Orders.cust_id`  
+```
+SELECT Customers.cust_id, Orders.order_num FROM Customers LEFT OUTER JOIN Orders ON Customers.cust_id = Orders.cust_id
+```
 
 **全外联结**：  
 它检索两个表中的所有行并关联那些可以关联的行，与左外联结或右外联结包含一个表的不关联的行不同，全外联结包含两个表的不关联的行  
-`SELECT Customers.cust_id, Orders.order_num FROM Customers FULL OUTER JOIN Orders ON Customers.cust_id = Orders.cust_id`  
+```
+SELECT Customers.cust_id, Orders.order_num FROM Customers FULL OUTER JOIN Orders ON Customers.cust_id = Orders.cust_id
+```
 
 **使用带聚集函数的联结**：  
 如果不分组，则结果大不相同：  
-`SELECT Customers.cust_id, COUNT(Orders.order_num) AS num_ord FROM Customers INNER JOIN Orders ON Customers.cust_id = Orders.cust_id GROUP BY Customers.cust_id`  
+```
+SELECT Customers.cust_id, COUNT(Orders.order_num) AS num_ord FROM Customers INNER JOIN Orders ON Customers.cust_id = Orders.cust_id GROUP BY Customers.cust_id
+```
 **使用左外联结包含所有顾客，甚至包含没有任何订单的顾客**：  
-`SELECT Customers.cust_id, COUNT(Orders.order_num) AS num_ord FROM Customers LEFT OUTTER JOIN Orders ON Customers.cust_id = Orders.cust_id GROUP BY Customers.cust_id`  
+```
+SELECT Customers.cust_id, COUNT(Orders.order_num) AS num_ord FROM Customers LEFT OUTTER JOIN Orders ON Customers.cust_id = Orders.cust_id GROUP BY Customers.cust_id
+```
 
 # 第十四课：组合查询
 SQL也允许多个查询（多条SELECT语句），并将结果作为一个查询结果返回，主要有两种使用场景：  
@@ -413,11 +477,14 @@ SQL也允许多个查询（多条SELECT语句），并将结果作为一个查�
 
 **创建组合查询**：  
 任何具有多个WHERE子句的SELECT语句都可以作为一个组合查询  
-`SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_state IN('IL', 'IN', 'MI') OR cust_name='Fun4All'
-`  
+```
+SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_state IN('IL', 'IN', 'MI') OR cust_name='Fun4All'
+
+```
 
 **两个WHERE子句用UNION联结**：  
-```SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_state IN('IL', 'IN', 'MI')
+```
+SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_state IN('IL', 'IN', 'MI')
 UNION
 SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_name='Fun4All' 
 ```
@@ -434,39 +501,53 @@ UNION从查询结果自动去掉了重复的行，其行为与一条SELECT语句
 
 # 第十五课：插入数据
 **插入完整的行**：  
-`INSERT INTO Customers VALUES('1000000006', 'Toy Land', '123 Any Street', 'New York', 'NY', '11111', 'USA', NULL, NULL)`  
+```
+INSERT INTO Customers VALUES('1000000006', 'Toy Land', '123 Any Street', 'New York', 'NY', '11111', 'USA', NULL, NULL)
+```
 没列必须提供值，如果没有，应该写NULL，各个列必须按照表中定义顺序依次填充；虽然语法简单，但是并不安全，插入数据不应该依赖表中列的次序，下次表结构变化时无法保证列的次序不变换  
 
 **更为安全的写法**：  
-`INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country, cust_contact, cust_email)
-VALUES('1000000007', 'Jimmy Land', '234 Any Street', 'New York', 'NY', '22222', 'USA', NULL, NULL);`  
+```
+INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country, cust_contact, cust_email)
+VALUES('1000000007', 'Jimmy Land', '234 Any Street', 'New York', 'NY', '22222', 'USA', NULL, NULL);
+```
 因为提供了列名，VALUES必须以其指定的次序填充，而不是表中定义的实际次序，其优点是即使表的结构变换也不会影响该语句的正常执行  
 
 **插入部分行**：  
-`INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country)
-VALUES('1000000008', 'Lucky Land', '345 Any Street', 'New York', 'NY', '33333', 'USA');`  
+```
+INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country)
+VALUES('1000000008', 'Lucky Land', '345 Any Street', 'New York', 'NY', '33333', 'USA');
+```
 省略的列必须满足以下条件：  
 * 该列定义允许NULL值（无值或空值）
 * 在表定义中给出默认值，如果插入数据不指定，则使用默认值  
 
 **插入检索处理的数据**：  
-`INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country) 
+```
+INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country) 
 Select  cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country
-From CustNew`  
+From CustNew
+```
 INSERT通常只能插入一行，但是INSERT SELECT可以一次性插入多行  
 
 **从一个表复制到另一个表**：  
-`SELECT * INTO CustCopy FROM Customers;	--SqLite不支持Select Into
-CREATE TABLE CustCopy AS SELECT * FROM Customers WHERE Customers.cust_city = 'Chicago';`  
+```
+SELECT * INTO CustCopy FROM Customers;	--SqLite不支持Select Into
+CREATE TABLE CustCopy AS SELECT * FROM Customers WHERE Customers.cust_city = 'Chicago';
+```
 如果只想复制部分列，需要明确指出列名，如果只想复制部分行，需要加过滤条件
 
 # 第十六课：更新和删除数据
 **更新数据**：  
-`UPDATE Customers SET cust_email = 'sky@xunrui.com.cn', cust_contact = 'sky' WHERE cust_id = '1000000005'`  
+```
+UPDATE Customers SET cust_email = 'sky@xunrui.com.cn', cust_contact = 'sky' WHERE cust_id = '1000000005'
+```
 更新多个列时，只需一个SET命令，每个列之间用逗号分隔  
 
 **删除数据**：  
-`DELETE FROM Customers WHERE cust_id = '1000000006'`  
+```
+DELETE FROM Customers WHERE cust_id = '1000000006'
+```
 DELETE不需要列名或通配符，删除整行或全部行，如果要删除指定列，要使用UPDATE语句（值设置为NULL），如果要快速删除所有行，可使用TRUNCATE TABLE语句，速度更快  
 使用外键确保引用完整性的一个好处是：DBMS通常可以防止删除某个关系需要用到的行  
 
@@ -519,7 +600,9 @@ SQLite	date('now')
 4. 多数DBMS允许重命名表中的列
 5. 许多DBMS限制对已经有数据的列进行修改，但未填充数据的列集合没有限制  
 
-`ALTER TABLE Vendors ADD vend_phone CHAR(20)	` --这可能是所有DBMS都支持的唯一操作  
+```
+ALTER TABLE Vendors ADD vend_phone CHAR(20)	 --这可能是所有DBMS都支持的唯一操作  
+```
 
 **复杂的表结构更改一般需要手动操作**：  
 1. 用新的列布局新建一个表
@@ -533,7 +616,7 @@ SQLite对使用ALTER TABLE执行的操作有所限制，最重要的一个是不
 使用ALTER TABLE要极为小心，应提前做好备份，如果增加了不需要的列，可能无法删除，如果删除了不应该删除的列，可能会丢失该列中的所有数据  
 
 **删除表**：  
-删除表没有确认，也不能撤销，执行这条语句将永久删除该表。许多DBMS允许强制实施有关规则，防止删除与其他表关联的表，如果有此功能，需开启  
+删除表没有确认，也不能撤销，执行这条语句将永久删除该表。许多DBMS允许强制实施有关规则，防止删除与其他表关联的表，如果有此功能，需开启   
 `DROP TABLE CustCopy;`  
 
 # 第十八课：视图
@@ -568,13 +651,18 @@ SELECT cust_name, cust_contact FROM ProductCustomers WHERE prod_id=\'RGAN01\'
 创建不绑定特定数据的视图是一个好办法，用WHERE子句再进行过滤  
 
 **用视图重新格式化检索出的数据**：  
-`CREATE VIEW VendorLocations AS SELECT RTRIM(vend_name) || '(' || RTRIM(vend_country) || ')' AS vend_title FROM Vendors;`  
+```
+CREATE VIEW VendorLocations AS SELECT RTRIM(vend_name) || '(' || RTRIM(vend_country) || ')' AS vend_title FROM Vendors;
+```
 
 **用视图过滤不想要的数据**：  
-`CREATE VIEW CustomerEmailList AS SELECT cust_id, cust_name, cust_email FROM Customers WHERE cust_email IS NOT NULL;`  
+```
+CREATE VIEW CustomerEmailList AS SELECT cust_id, cust_name, cust_email FROM Customers WHERE cust_email IS NOT NULL;
+```
 
 **使用视图与计算字段**：  
-```CREATE VIEW OrderItemsExpanded AS SELECT order_num, prod_id, quantity, item_price, quantity*item_price AS expanded_price FROM OrderItems;  
+```
+CREATE VIEW OrderItemsExpanded AS SELECT order_num, prod_id, quantity, item_price, quantity*item_price AS expanded_price FROM OrderItems;  
 SELECT * FROM OrderItemsExpanded WHERE order_num=20008;
 ```  
 视图是虚拟的表，包含的不是数据而是根据需要检索数据的查询，视图提供了一种封装SELECT语句的方式，可以用来简化数据处理，重新格式化或保护基础数据
@@ -595,7 +683,9 @@ SELECT * FROM OrderItemsExpanded WHERE order_num=20008;
 多数DBMS将编写存储过程所需要的安全和访问权限与执行存储过程所需的安全和访问权限分开了，这是好事，即使不能自己编写存储过程，仍然可以在适当的时候执行存储过程  
 
 **执行存储过程**：  
-`EXECUTE AddNewProduct('JTS01', 'Stuffed Eiffel Tower', 6.49, 'push stuffed toy with text');`  
+```
+EXECUTE AddNewProduct('JTS01', 'Stuffed Eiffel Tower', 6.49, 'push stuffed toy with text');
+```
 AddNewProduct存储过程名，四个参数：供应商ID，产品名，价格和描述
 
 
@@ -746,7 +836,9 @@ ADD CONSTRAINT CHECK (gender LIKE '[MF]')
 4. 索引用于数据过滤和排序
 5. 可以在索引中定义多个列
 6. 过去创建的理想的索引可能经过几个月数据处理后变得不再理想了，最好定期检查进行调整  
-`CREATE INDEX prod_name_idx ON Products (prod_name);  `
+```
+CREATE INDEX prod_name_idx ON Products (prod_name);
+```
 
 **触发器**：  
 触发器是特殊的存储过程，在特定的数据库活动发生时自动执行，触发器可以与特定表上的INSERT、UPDATE和DELETE操作相关联；存储过程是简单的存储SQL语句，而触发器与单个表相关联；根据不同的DBMS，触发器可在特定操作执行之前或之后执行，触发器的作用主要有：  
