@@ -25,30 +25,41 @@ basic common SQL statements review.
 
 # 第二课：检索数据 
 **检索单列**：  
-`  SELECT prod_name FROM Products;  `  
+```
+SELECT prod_name FROM Products;  
+```
 多条SQL语句必须加分号;分隔，单条语句加上也没坏处，SQL语句不区分大小写，因此SELECT和select是相同的，许多SQL开发人员喜欢对SQL关键字使用大写，而对表名列名使用小写，这样代码易于阅读和调试；处理SQL语句时，所有空格都会被忽略  
 
 **检索多列**：  
-` SELECT prod_id, prod_name, prod_price FROM Products;  `  
+```
+SELECT prod_id, prod_name, prod_price FROM Products;  
+```  
 列名之间必须以分号;分隔，但最后一个列名后不能加；SQL语句一般返回原始的，无格式的数据，通常很少直接使用实际检索出的数据  
 
 **检索所有列**：  
-` SELECT * FROM Products;  `  
+```
+SELECT * FROM Products;  
+```
 除非确实需要每一列，否则尽量避免使用通配符，会降低检索和应用程序的性能  
 
 **检索不同的值**：  
-`SELECT DISTINCT vend_id FROM Products;  `  
+```
+SELECT DISTINCT vend_id FROM Products; 
+```
 关键字DISTINCT指示DBMS只返回具有唯一性的vend_id行，需要注意的是不能部分使用该关键字，它会作用于多列，如下语句会查询除了vend_id和prod_price都相同以外的所有行  
-` SELECT DISTINCT vend_id, prod_price FROM Products;  `  
+```
+SELECT DISTINCT vend_id, prod_price FROM Products; 
+```
 
 **限制检索结果**：  
-`SELECT prod_name FROM Products LIMIT 5;  # MySql, SQLite  `  
-`SELECT prod_name FROM Products LIMIT 5  OFFSET 6;  # 从第6行开始取5行，第0行为起始行  `  
-`SELECT prod_name FROM Products LIMIT 6， 5;  # 意义同上  `  
-`SELECT TOP 5 prod_name FROM Products;	# Access, SQL Server  `  
-`SELECT prod_name FROM Products FETCH FIRST 5 ROWS ONLY;  # DB2  `  
-`SELECT prod_name FROM Products WHERE ROWNUM <= 5;	# Oracle   `  
-
+```
+SELECT prod_name FROM Products LIMIT 5;  # MySql, SQLite  
+SELECT prod_name FROM Products LIMIT 5  OFFSET 6;  # 从第6行开始取5行，第0行为起始行  
+SELECT prod_name FROM Products LIMIT 6， 5;  # 意义同上  
+SELECT TOP 5 prod_name FROM Products;	# Access, SQL Server  
+SELECT prod_name FROM Products FETCH FIRST 5 ROWS ONLY;  # DB2  
+SELECT prod_name FROM Products WHERE ROWNUM <= 5;	# Oracle   
+```
 **使用注释**：  
 ` 两个连字符--，表示行内注释 `  
 ` #表示行内注释 `  
@@ -57,27 +68,38 @@ basic common SQL statements review.
 # 第三课：排序检索结果
 **单列排序**：  
 `prod_id  vend_id  prod_name  prod_price  prod_desc`  
-`SELECT prod_name FROM Products ORDER BY prod_name;`  
+```
+SELECT prod_name FROM Products ORDER BY prod_name;
+```
 如果不明确控制的话，检索结果不应该依赖默认的排序结果；在指定一条ORDER BY子句时，应保证它是SELECT语句的最后一条子句，否则将出现错误；通常，ORDER BY子句中所用的列是为显示而选择的列，但是并不一定要这样，非检索的列也可用于排序  
 
 **多列排序**：  
-`SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price, prod_name;`  
+```
+SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price, prod_name;
+```
 首先按prod_price进行排序，若prod_price相同，再按prod_name排序
 
 **按位置排序**：  
-`SELECT prod_id, prod_name, prod_price FROM Products ORDER BY 3, 2;`  
+```
+SELECT prod_id, prod_name, prod_price FROM Products ORDER BY 3, 2;
+```
 先按3即prod_price排序，若prod_price相同，再按2即prod_name排序，而且如果进行排序的列不在SELECT语句中，则不能使用这项技术  
 
 **指定排序方向**：  
-`SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price DESC, prod_name`  
+```SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price DESC, prod_name;
+```
 DESC DESCENDING表示降序排序，默认是升序ASC ASCENDING排序，关键字DESC只能应用到直接位于其前面的列名，即prod_price，而prod_name仍按升序排序，如果要在多个列上进行降序排序，必须对每一列指定DESC    
 
-`SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price DESC, prod_name DESC`  
+```
+SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price DESC, prod_name DESC;
+```
 排序时至于A和a是否一样，取决于数据库的设置方式，在字典排序中，A被视为与a相同，这是大多数DBMS的默认行为，但是许多DBMS允许修改这种行为  
 
 # 第四课：过滤数据
 **WHERE子句**：  
-`SELECT prod_name, prod_price FROM Products WHERE prod_price = 3.69;`  
+```
+SELECT prod_name, prod_price FROM Products WHERE prod_price = 3.69;
+```
 在SELECT语句中，数据根据WHERE子句中指定的搜索条件进行过滤，数据也可以在应用层过滤，但是这种做法极为不妥，优化数据库后可以更快速有效的对数据进行过滤，而让客户端应用去处理数据库的工作会极大的影响应用性能，并且使应用完全不具备可伸缩性，此外，服务器还不得不发送多余的数据  
 
 **WHERE子句操作符**：  
@@ -86,57 +108,89 @@ DESC DESCENDING表示降序排序，默认是升序ASC ASCENDING排序，关键�
 并非所有的DBMS都支持这些操作符  
 
 **检查单值**：  
-`SELECT prod_id, prod_price FROM Products WHERE prod_price < 10;`  
+```
+SELECT prod_id, prod_price FROM Products WHERE prod_price < 10;
+```
 
 **不匹配检查**：  
-`SELECT prod_name, vend_id FROM Products WHERE vend_id != 'DLL01';`  
+```
+SELECT prod_name, vend_id FROM Products WHERE vend_id != 'DLL01';
+```
 单引号''用来限定字符串  
 
 **范围检查**：  
-`SELECT prod_name, prod_price FROM Products WHERE prod_price BETWEEN 5 AND 10;`    
+```
+SELECT prod_name, prod_price FROM Products WHERE prod_price BETWEEN 5 AND 10;
+```
 
 **空值检查**：  
-`SELECT cust_name FROM Customers WHERE cust_email IS NULL;`  
+```
+SELECT cust_name FROM Customers WHERE cust_email IS NULL;
+```
 NULL与字段包含0，空字符串或仅仅包含空格不一样；确定值是否为NULL，不能简单的检查是否=NULL，只能用WHERE子句的IS NULL来检查；在创建表时，可以指定其中的列能否不包含值，如果可以，则称其包含空值NULL  
 
 # 第五课：高级数据过滤
 **组合WHERE子句**：  
-`SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id='DLL01' AND prod_price <= 4;`  
+```
+SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id='DLL01' AND prod_price <= 4;
+```
 为了进行更强的过滤控制，SQL允许给出多个WHERE子句，它们可以使用AND或者OR连接  
-`SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id='DLL01' OR prod_price <= 4;` 
-`SELECT prod_id, prod_name, prod_price FROM Products WHERE (vend_id='DLL01' OR vend_id='BRS01') AND prod_price <= 4;`  
+```
+SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id='DLL01' OR prod_price <= 4;
+```
+```
+SELECT prod_id, prod_name, prod_price FROM Products WHERE (vend_id='DLL01' OR vend_id='BRS01') AND prod_price <= 4;
+```
 
 任何时候使用具有AND和OR的WHERE子句，都应该使用圆括号明确的分组操作符，不要过分依赖默认求值顺序  
-`SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id IN('DLL01', 'BRS01') ORDER BY prod_name;`  
+```
+SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id IN('DLL01', 'BRS01') ORDER BY prod_name;
+```
 
 IN取一组逗号分隔，括在圆括号中的合法值，IN的优点：  
-* 在有很多合法选项时，语法更清楚直观
-* 与其他AND和OR操作符组合时，求值顺序更容易管理
-* 比一组OR操作符执行的更快
-* 最大优点是可以包含其他SELECT语句，能够更动态的建立WHERE子句  
+1. 在有很多合法选项时，语法更清楚直观
+2. 与其他AND和OR操作符组合时，求值顺序更容易管理
+3. 比一组OR操作符执行的更快
+4. 最大优点是可以包含其他SELECT语句，能够更动态的建立WHERE子句  
 
-`SELECT prod_id, prod_name, prod_price FROM Products WHERE NOT vend_id = 'DLL01';`
+```
+SELECT prod_id, prod_name, prod_price FROM Products WHERE NOT vend_id = 'DLL01';
+```
 NOT操作符只有一个功能，就是否定其后所跟的任何条件，作用在要过滤的列前  
 
-`SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id != 'DLL01'; # 同上`  
+```
+SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id != 'DLL01'; # 同上`  
+```
 在更复杂的子句中，NOT非常有用，在与IN操作符联合使用时，NOT可以非常简单的找出与条件列表不匹配的行
 
 # 第六课：用通配符进行过滤
 **LIKE操作符**：  
 为了在搜索子句中使用通配符，必须使用LIKE操作符，其指示DBMS，后跟的搜索模式利用通配符匹配而不是简单的相等匹配进行比较；操作符作为谓词时不是操作符，通配符搜索只能用于文本字段，非文本数据类型不能使用通配符搜索  
-**%：** 表示任何字符出现任意次数  
-`SELECT prod_id, prod_name FROM Products WHERE prod_name LIKE '%fish%';`   
-`SELECT prod_id, prod_name FROM Products WHERE prod_name LIKE 'f%h';`  
+**%：** 表示任何字符出现任意次数  
+```
+SELECT prod_id, prod_name FROM Products WHERE prod_name LIKE '%fish%';
+```
+```
+SELECT prod_id, prod_name FROM Products WHERE prod_name LIKE 'f%h';
+```
 包括Access在内的很多DBMS都用空格来填补字段内容，如某列有50个字符，而存储的文本只有17个字符，则填满33个空格，这样做一般对数据及其使用没有影响，但是可能对上述SQL语句有负面影响，导致搜索失败，解决办法是给搜索模式再增加一个%，或者使用trim函数  
-`SELECT prod_id, prod_name FROM Products WHERE prod_name LIKE 'f%h%';`   
+```
+SELECT prod_id, prod_name FROM Products WHERE prod_name LIKE 'f%h%';
+```
 通配符%看起来可以匹配任何东西，但是无法匹配NULL，子句WHERE prod_name LIKE '%'不会匹配产品名称为NULL的行  
 
 **\_** 当且仅当匹配一个字符，DB2不支持该操作符，Microsoft Access使用的则是?  
-`SELECT prod_id, prod_name FROM Products WHERE prod_name LIKE '__ bag%';`  
+```
+SELECT prod_id, prod_name FROM Products WHERE prod_name LIKE '__ bag%';
+```
 
 **[]：**方括号用来指定一个字符集，必须匹配指定位置的一个字符，仅Access和SQL Server支持  
-`SELECT cust_contact FROM Customers WHERE cust_contact LIKE '[JM]%'; # SQLite不支持`  
-`SELECT cust_contact FROM Customers WHERE cust_contact LIKE '[^JM]%'; # SQLite不支持`  
+```
+SELECT cust_contact FROM Customers WHERE cust_contact LIKE '[JM]%'; # SQLite不支持
+```
+```
+SELECT cust_contact FROM Customers WHERE cust_contact LIKE '[^JM]%'; # SQLite不支持
+```
 
 **通配符的技巧**：
 通配符很有用，但是这种功能有代价，即比其他搜索要耗费更长的时间  
@@ -149,23 +203,31 @@ NOT操作符只有一个功能，就是否定其后所跟的任何条件，作�
 存储在数据表中的数据通常不是应用所需要的，我们需要直接从数据库中检索出转换、计算、格式化过的数据，而不是检索出数据然后再在客户端程序中重新格式化；只有数据库知道SELECT语句中哪些列是实际的表列，哪些是计算字段，从客户端来看，计算字段和表列的数据返回方式相同；在SQL语句内可完成的许多转换和格式化工作都可以直接在客户端应用中完成，但是一般来说，在数据库服务器上完成这些操作要比客户端快得多   
 
 **拼接字段**：  
-`SELECT vend_name || ' (' || vend_country || ')' FROM Vendors ORDER BY vend_name;`   
+```
+SELECT vend_name || ' (' || vend_country || ')' FROM Vendors ORDER BY vend_name;
+```
 Access和SQL Server使用+，SQLite等使用||，左括号左边有个空格  
 
 **使用别名**：  
 SELECT语句可以很好的进行拼接，可是拼接出来的字段没有名字，只是一个值，如果客户端需要引用，可为它起个别名，用关键字AS赋予  
-`SELECT vend_name || ' (' || vend_country || ')' AS vend_title FROM Vendors ORDER BY vend_name;`  
+```
+SELECT vend_name || ' (' || vend_country || ')' AS vend_title FROM Vendors ORDER BY vend_name;
+```
 AS关键字是可选的，但是最好使用它；其常见用途包括在实际的表列名包含不合法的字符如空格时重新命名它，在原理名字含混或容易误解时扩充它；别名可以是一个单词，也可以是一个字符串，但不建议定义为字符串，有的地方称为导出列  
 
 **执行算术计算**：  
-`SELECT prod_id, quantity, item_price, quantity*item_price AS total_price FROM OrderItems WHERE order_num = 20008;`  
-计算字段的另一个常见用途是对检索出的数据进行算术计算  
+```
+SELECT prod_id, quantity, item_price, quantity*item_price AS total_price FROM OrderItems WHERE order_num = 20008;
+```
+计算字段的另一个常见用途是对检索出的数据进行算术计算  
 
 **测试计算**：  
-SELECT语句为测试、检验函数和计算提供了很好的方法，虽然它通常用了检索数据，但是省略了FROM子句后就是简单的访问和处理表达式，如：  
-`SELECT 2*3;`  
-`SELECT Trim('   abc ');`  
-`SELECT Date();`  
+SELECT语句为测试、检验函数和计算提供了很好的方法，虽然它通常用了检索数据，但是省略了FROM子句后就是简单的访问和处理表达式，如： 
+```
+SELECT 2*3;
+SELECT Trim('   abc ');
+SELECT Date();
+```
 
 # 第八课：使用函数处理数据
 **函数的问题**：  
