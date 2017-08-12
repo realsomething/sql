@@ -1,10 +1,89 @@
 # sql
 basic common SQL statements review.
 
-> 《数据库必知必会》笔记
+> 《数据库必知必会》笔记  
 
 
 
+```
+CREATE TABLE Customers (
+    cust_name    CHAR (50)  NOT NULL,
+    cust_address CHAR (50),
+    cust_country CHAR (50),
+    cust_city    CHAR (50),
+    cust_state   CHAR (5),
+    cust_zip     CHAR (10),
+    cust_id      CHAR (10)  NOT NULL,
+    cust_contact CHAR (50),
+    cust_email   CHAR (255),
+    PRIMARY KEY (
+        cust_id
+    )
+);
+
+CREATE TABLE Products (
+    prod_id    CHAR (10)      NOT NULL,
+    vend_id    CHAR (10)      NOT NULL,
+    prod_name  CHAR (255)     NOT NULL,
+    prod_price DECIMAL (8, 2) NOT NULL,
+    prod_desc  TEXT,
+    PRIMARY KEY (
+        prod_id
+    ),
+    FOREIGN KEY (
+        vend_id
+    )
+    REFERENCES Vendors (vend_id) 
+);
+
+CREATE TABLE Vendors (
+    vend_id      CHAR (10) NOT NULL,
+    vend_name    CHAR (50) NOT NULL,
+    vend_address CHAR (50),
+    vend_city    CHAR (50),
+    vend_state   CHAR (5),
+    vend_zip     CHAR (10),
+    vend_country CHAR (50),
+    vend_phone   CHAR (20),
+    PRIMARY KEY (
+        vend_id
+    )
+);
+
+CREATE TABLE Orders (
+    order_num  INT       NOT NULL,
+    order_date DATETIME  NOT NULL,
+    cust_id    CHAR (10) NOT NULL,
+    PRIMARY KEY (
+        order_num
+    ),
+    FOREIGN KEY (
+        cust_id
+    )
+    REFERENCES Customers (cust_id) 
+);
+
+CREATE TABLE OrderItems (
+    order_num  INT            NOT NULL,
+    order_item INT            NOT NULL,
+    prod_id    CHAR (10)      NOT NULL,
+    quantity   INT            NOT NULL,
+    item_price DECIMAL (8, 2) NOT NULL,
+    PRIMARY KEY (
+        order_num,
+        order_item
+    ),
+    FOREIGN KEY (
+        order_num
+    )
+    REFERENCES Orders (order_num),
+    FOREIGN KEY (
+        prod_id
+    )
+    REFERENCES Products (prod_id) 
+);
+
+```
 
 
 # 第一课：简单概念 
