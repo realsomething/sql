@@ -1,8 +1,7 @@
 # sql
 basic common SQL statements review.
 
-
-《数据库必知必会》笔记
+> 《数据库必知必会》笔记
 
 
 # 第一课：简单概念 
@@ -202,6 +201,7 @@ SOUNDEX是一个将任何文本串转换为描述其语音表示的字母数字�
 
 # 第九课：汇总数据
 经常需要汇总数据而不是把它们检索出来，比如确定表中行数、获取表中某些行的和、找出表列的最大值平均数；与数据处理函数不同，SQL的聚集函数在主要DBMS获得了相当一致的支持  
+
 **聚集函数**：  
 对某些运行的函数，计算并返回一个值  
 * AVG()：返回某列的平均值  
@@ -267,34 +267,42 @@ GROUP BY对行分组，但输出可能不是分组的顺序；只可能使用选
 一般在使用GROUP BY子句时，应该给出ORDER BY子句，这是保证数据正确排序的唯一方法，千万不能依赖GROUP BY排序顺序  
 `SELECT order_num, COUNT(*) AS items FROM OrderItems GROUP BY order_num HAVING COUNT(*) >=3 ORDER BY items, order_num;`  
 
-第十一课：使用子查询
-子查询：
-任何SQL语句都是查询，但是此术语一般特制SELECT语句，SQL允许创建子查询，即嵌套在其他查询中的查询
-利用子查询进行过滤：
-SELECT cust_name, cust_contact FROM Customers WHERE cust_id IN(SELECT cust_id FROM Orders WHERE order_num IN (SELECT order_num FROM OrderItems WHERE prod_id='RGAN01'));
-在SQL语句中，子查询总是由内往外；在WHERE子句中使用子查询可以编写出功能强大且很灵活的SQL语句，对于嵌套子查询的数目没有限制，不过由于性能限制，不能嵌套太多；作为子查询的SELECT语句只能查询单个列，企图查询多个列将返回错误；使用子查询并不总是执行这类数据检索的最有效办法
-作为计算字段使用子查询：
-使用子查询的另一个方法是创建计算字段
-SELECT cust_name, cust_state, (SELECT COUNT(*) FROM Orders WHERE Orders.cust_id=Customers.cust_id) AS orders FROM Customers ORDER BY cust_name;
-orders是一个计算字段，由括号中的子查询建立
+# 第十一课：使用子查询
+**子查询**：  
+任何SQL语句都是查询，但是此术语一般特指SELECT语句，SQL允许创建子查询，即嵌套在其他查询中的查询  
 
-第十二课：联结表
-关系表设计就是要把信息分解成多个表，一类数据一个表，各个表通过某些共同的值互相关联。联结是一种机制，用来在一条SELECT语句中关联表，因此称为联结，使用特殊的语法，可以联结多个表返回一组输出，使用联结表优点：
-1：信息不重复，赴会浪费时间和空间
-2：如果信息变动，只需更新单个表记录
-3：数据不重复，可保持数据一致性
-创建联结：
-SELECT vend_name, prod_name, prod_price FROM Vendors, Products WHERE Vendors.vend_id = Products.vend_id
-在联结两个表时，实际上是将第一个表中的每一行与第二个表中每一行配对，WHERE子句作为过滤条件，只包含那些匹配的行。要保证所有联结都有WHERE子句，否则DBMS将返回比想象多得多的数据
-笛卡尔积：由没有联结条件的表返回的结果，检索出的行的数目将是第一个表的行数乘以第二个表的行数
-內联结：基于两个表之间的相等测试，也叫等值联结
-SELECT vend_name, prod_name, prod_price FROM Vendors INNER JOIN Products ON Vendors.vend_id = Products.vend_id
-联结多个表：
-SELECT vend_name, prod_name, prod_price quantity FROM OrderItems, Products, Vendors WHERE Vendors.vend_id = Products.vend_id AND OrderItems.prod_id = Products.prod_id AND order_num = 20007
-不要联结不必要的表，联结的表越多，性能下降越厉害
-SELECT cust_name, cust_contact FROM Customers WHERE cust_id IN (SELECT cust_id FROM Orders WHERE order_num in (SELECT order_num FROM OrderItems WHERE prod_id = 'RGAN01'))
-等同于：
-SELECT cust_name, cust_contact FROM Customers, Orders, OrderItems WHERE Customers.cust_id = Orders.cust_id AND OrderItems.order_num = Orders.order_num AND prod_id = 'RGAN01'
+**利用子查询进行过滤**：
+`SELECT cust_name, cust_contact FROM Customers WHERE cust_id IN(SELECT cust_id FROM Orders WHERE order_num IN (SELECT order_num FROM OrderItems WHERE prod_id='RGAN01'));`  
+在SQL语句中，子查询总是由内往外；在WHERE子句中使用子查询可以编写出功能强大且很灵活的SQL语句，对于嵌套子查询的数目没有限制，不过由于性能限制，不能嵌套太多；作为子查询的SELECT语句只能查询单个列，企图查询多个列将返回错误；使用子查询并不总是执行这类数据检索的最有效办法  
+
+**作为计算字段使用子查询**：  
+使用子查询的另一个方法是创建计算字段  
+`SELECT cust_name, cust_state, (SELECT COUNT(*) FROM Orders WHERE Orders.cust_id=Customers.cust_id) AS orders FROM Customers ORDER BY cust_name;`  
+orders是一个计算字段，由括号中的子查询建立  
+
+# 第十二课：联结表
+关系表设计就是要把信息分解成多个表，一类数据一个表，各个表通过某些共同的值互相关联。联结是一种机制，用来在一条SELECT语句中关联表，因此称为联结，使用特殊的语法，可以联结多个表返回一组输出，使用联结表优点：  
+* 信息不重复，赴会浪费时间和空间
+* 如果信息变动，只需更新单个表记录
+* 数据不重复，可保持数据一致性  
+
+**创建联结**：  
+`SELECT vend_name, prod_name, prod_price FROM Vendors, Products WHERE Vendors.vend_id = Products.vend_id`  
+在联结两个表时，实际上是将第一个表中的每一行与第二个表中每一行配对，WHERE子句作为过滤条件，只包含那些匹配的行。要保证所有联结都有WHERE子句，否则DBMS将返回比想象多得多的数据  
+
+**笛卡尔积**：  
+由没有联结条件的表返回的结果，检索出的行的数目将是第一个表的行数乘以第二个表的行数  
+
+**內联结**：  
+基于两个表之间的相等测试，也叫等值联结  
+`SELECT vend_name, prod_name, prod_price FROM Vendors INNER JOIN Products ON Vendors.vend_id = Products.vend_id`  
+
+**联结多个表**：  
+`SELECT vend_name, prod_name, prod_price quantity FROM OrderItems, Products, Vendors WHERE Vendors.vend_id = Products.vend_id AND OrderItems.prod_id = Products.prod_id AND order_num = 20007`  
+不要联结不必要的表，联结的表越多，性能下降越厉害  
+`SELECT cust_name, cust_contact FROM Customers WHERE cust_id IN (SELECT cust_id FROM Orders WHERE order_num in (SELECT order_num FROM OrderItems WHERE prod_id = 'RGAN01'))`  
+等同于：  
+`SELECT cust_name, cust_contact FROM Customers, Orders, OrderItems WHERE Customers.cust_id = Orders.cust_id AND OrderItems.order_num = Orders.order_num AND prod_id = 'RGAN01'`  
 执行一个任务给定的SQL操作一般不止一种方法，很少有绝对正确或绝对错误的方法，性能可能受操作类型，所使用的DBMS，表中数据量，是否存在索引或键等条件影响
 
 第十三课：创建高级联结
