@@ -4,6 +4,9 @@ basic common SQL statements review.
 > 《数据库必知必会》笔记
 
 
+
+
+
 # 第一课：简单概念 
 **数据库**：保存有组织的数据的容器，通常是一个或一组文件  
 **DBMS**：数据库管理系统 DataBase Management System  
@@ -86,7 +89,8 @@ SELECT prod_id, prod_name, prod_price FROM Products ORDER BY 3, 2;
 先按3即prod_price排序，若prod_price相同，再按2即prod_name排序，而且如果进行排序的列不在SELECT语句中，则不能使用这项技术  
 
 **指定排序方向**：  
-```SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price DESC, prod_name;
+```
+SELECT prod_id, prod_name, prod_price FROM Products ORDER BY prod_price DESC, prod_name;
 ```
 DESC DESCENDING表示降序排序，默认是升序ASC ASCENDING排序，关键字DESC只能应用到直接位于其前面的列名，即prod_price，而prod_name仍按升序排序，如果要在多个列上进行降序排序，必须对每一列指定DESC    
 
@@ -162,6 +166,7 @@ NOT操作符只有一个功能，就是否定其后所跟的任何条件，作�
 SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id != 'DLL01'; # 同上`  
 ```
 在更复杂的子句中，NOT非常有用，在与IN操作符联合使用时，NOT可以非常简单的找出与条件列表不匹配的行
+[回到顶部](#readme)
 
 # 第六课：用通配符进行过滤
 **LIKE操作符**：  
@@ -360,6 +365,8 @@ GROUP BY对行分组，但输出可能不是分组的顺序；只可能使用选
 ```
 SELECT order_num, COUNT(*) AS items FROM OrderItems GROUP BY order_num HAVING COUNT(*) >=3 ORDER BY items, order_num;
 ```
+[回到顶部](#readme)
+
 
 # 第十一课：使用子查询
 **子查询**：  
@@ -535,7 +542,9 @@ INSERT通常只能插入一行，但是INSERT SELECT可以一次性插入多行
 SELECT * INTO CustCopy FROM Customers;	--SqLite不支持Select Into
 CREATE TABLE CustCopy AS SELECT * FROM Customers WHERE Customers.cust_city = 'Chicago';
 ```
-如果只想复制部分列，需要明确指出列名，如果只想复制部分行，需要加过滤条件
+如果只想复制部分列，需要明确指出列名，如果只想复制部分行，需要加过滤条件  
+[回到顶部](#readme)
+
 
 # 第十六课：更新和删除数据
 **更新数据**：  
@@ -703,6 +712,8 @@ DECLARE @retValue INT
 EXECUTE @retValue = MailingListCount;
 SELECT @retValue
 ```  
+[回到顶部](#readme)
+
 
 # 第二十课：事务
 事务处理用来管理INSERT、UPDATE和DELETE语句，通过确保成批的SQL操作要么完成执行，要么完全不执行，来维护数据库的完整性；如果没有错误发生，整组语句提交（写到）数据库表，如果发生错误，则进行回退，将数据库恢复到某个已知且安全的状态；管理事务的关键在于将SQL语句组分解为逻辑块，并明确规定数据何时该回退，何时不该回退  
@@ -858,3 +869,4 @@ UPDATE Customers
 SET cust_state=Upper(cust_state)
 WHERE Customers.cust_id=inserted.cust_id
 ```
+[回到顶部](#readme)
