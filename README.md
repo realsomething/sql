@@ -271,7 +271,7 @@ GROUP BY对行分组，但输出可能不是分组的顺序；只可能使用选
 **子查询**：  
 任何SQL语句都是查询，但是此术语一般特指SELECT语句，SQL允许创建子查询，即嵌套在其他查询中的查询  
 
-**利用子查询进行过滤**：
+**利用子查询进行过滤**：  
 `SELECT cust_name, cust_contact FROM Customers WHERE cust_id IN(SELECT cust_id FROM Orders WHERE order_num IN (SELECT order_num FROM OrderItems WHERE prod_id='RGAN01'));`  
 在SQL语句中，子查询总是由内往外；在WHERE子句中使用子查询可以编写出功能强大且很灵活的SQL语句，对于嵌套子查询的数目没有限制，不过由于性能限制，不能嵌套太多；作为子查询的SELECT语句只能查询单个列，企图查询多个列将返回错误；使用子查询并不总是执行这类数据检索的最有效办法  
 
@@ -305,35 +305,44 @@ orders是一个计算字段，由括号中的子查询建立
 `SELECT cust_name, cust_contact FROM Customers, Orders, OrderItems WHERE Customers.cust_id = Orders.cust_id AND OrderItems.order_num = Orders.order_num AND prod_id = 'RGAN01'`  
 执行一个任务给定的SQL操作一般不止一种方法，很少有绝对正确或绝对错误的方法，性能可能受操作类型，所使用的DBMS，表中数据量，是否存在索引或键等条件影响
 
-第十三课：创建高级联结
-使用表别名：
-SELECT cust_name, cust_contact FROM Customers AS C, Orders AS O, OrderItems AS OI WHERE C.cust_id = O.cust_id AND O.order_num = OI.order_num AND prod_id = 'RGAN01'
-可以缩短SQL语句，允许在一条SELECT语句中多次使用相同的表
-ORACLE不支持AS关键字，要在ORACLE中使用别名，可以不用AS，简单指定列名 Customers C
-自联结：
-SELECT cust_name, cust_id, cust_contact FROM Customers WHERE cust_name = (SELECT cust_name FROM Customers WHERE cust_contact = 'Jim Jones');
-等同于：
-SELECT c1.cust_name, c1.cust_id, c1.cust_contact FROM Customers AS c1, Customers AS c2 WHERE c1.cust_name = c2.cust_name AND c2.cust_contact = 'Jim Jones';
-许多DBMS处理联结比处理子查询要快得多
-自然联结：
-无论何时对表进行联结，应至少有一列不止出现在一个表中。标准的联结返回所有数据，相同的列甚至多次出现，自然联结排除多次出现，使每一列只返回一次，这项工作不是由系统完成，一般通过对一个表使用通配符SELECT *，而对其他表的列使用明确的子集完成
-SELECT C.*, O.order_num , O.order_date, OI.prod_id, OI.quantity, OI.item_price FROM Customers AS C, Orders AS O, OrderItems AS OI WHERE C.cust_id=O.cust_id AND OI.order_num=O.order_num AND prod_id='RGAN01'
-通配符只对第一个表使用，所有其他列明确列出，所以没有重复列被检索，我们迄今建立的每个内联结都是自然联结，很可能永远都不会用到不是自然连接的内连接
-外联结：
-联结中包含了那些在相关表中没有关联行的行。与內联结关联两个表中的行不同的是，外联结还包括没有关联行的行，在使用OUTER JOIN语法时，必须使用RIGHT或LEFT关键字指定包括其所有行的表。
-SQLite仅支持LEFT OUTER JOIN，左外联结和右外联结的唯一差别是所关联的表的顺序，换句话说，调整FROM或WHERE子句中表的顺序，左外联结可以转换为右外联结
-內联结：检索出所有顾客及其订单
-SELECT Customers.cust_id, Orders.order_num FROM Customers INNER JOIN Orders ON Customers.cust_id = Orders.cust_id
-外联结：检索出包括没有订单的顾客在内的所有顾客
-SELECT Customers.cust_id, Orders.order_num FROM Customers LEFT OUTER JOIN Orders ON Customers.cust_id = Orders.cust_id
-全外联结：
-它检索两个表中的所有行并关联那些可以关联的行，与左外联结或右外联结包含一个表的不关联的行不同，全外联结包含两个表的不关联的行
-SELECT Customers.cust_id, Orders.order_num FROM Customers FULL OUTER JOIN Orders ON Customers.cust_id = Orders.cust_id
-使用带聚集函数的联结：
-如果不分组，则结果大不相同：
-SELECT Customers.cust_id, COUNT(Orders.order_num) AS num_ord FROM Customers INNER JOIN Orders ON Customers.cust_id = Orders.cust_id GROUP BY Customers.cust_id
-使用左外联结包含所有顾客，甚至包含没有任何订单的顾客：
-SELECT Customers.cust_id, COUNT(Orders.order_num) AS num_ord FROM Customers LEFT OUTTER JOIN Orders ON Customers.cust_id = Orders.cust_id GROUP BY Customers.cust_id
+# 第十三课：创建高级联结
+**使用表别名**：  
+`SELECT cust_name, cust_contact FROM Customers AS C, Orders AS O, OrderItems AS OI WHERE C.cust_id = O.cust_id AND O.order_num = OI.order_num AND prod_id = 'RGAN01'`  
+可以缩短SQL语句，允许在一条SELECT语句中多次使用相同的表  
+ORACLE不支持AS关键字，要在ORACLE中使用别名，可以不用AS，简单指定列名 Customers C  
+
+**自联结**：  
+`SELECT cust_name, cust_id, cust_contact FROM Customers WHERE cust_name = (SELECT cust_name FROM Customers WHERE cust_contact = 'Jim Jones');`  
+等同于：  
+`SELECT c1.cust_name, c1.cust_id, c1.cust_contact FROM Customers AS c1, Customers AS c2 WHERE c1.cust_name = c2.cust_name AND c2.cust_contact = 'Jim Jones';`  
+许多DBMS处理联结比处理子查询要快得多  
+
+**自然联结**：  
+无论何时对表进行联结，应至少有一列不止出现在一个表中。标准的联结返回所有数据，相同的列甚至多次出现，自然联结排除多次出现，使每一列只返回一次，这项工作不是由系统完成，一般通过对一个表使用通配符SELECT \*，而对其他表的列使用明确的子集完成  
+`SELECT C.*, O.order_num , O.order_date, OI.prod_id, OI.quantity, OI.item_price FROM Customers AS C, Orders AS O, OrderItems AS OI WHERE C.cust_id=O.cust_id AND OI.order_num=O.order_num AND prod_id='RGAN01'`  
+通配符只对第一个表使用，所有其他列明确列出，所以没有重复列被检索，我们迄今建立的每个内联结都是自然联结，很可能永远都不会用到不是自然连接的内连接  
+
+**外联结**：  
+联结中包含了那些在相关表中没有关联行的行。与內联结关联两个表中的行不同的是，外联结还包括没有关联行的行，在使用OUTER JOIN语法时，必须使用RIGHT或LEFT关键字指定包括其所有行的表。  
+SQLite仅支持LEFT OUTER JOIN，左外联结和右外联结的唯一差别是所关联的表的顺序，换句话说，调整FROM或WHERE子句中表的顺序，左外联结可以转换为右外联结  
+
+**內联结**：  
+检索出所有顾客及其订单  
+`SELECT Customers.cust_id, Orders.order_num FROM Customers INNER JOIN Orders ON Customers.cust_id = Orders.cust_id`  
+
+**外联结**：  
+检索出包括没有订单的顾客在内的所有顾客  
+`SELECT Customers.cust_id, Orders.order_num FROM Customers LEFT OUTER JOIN Orders ON Customers.cust_id = Orders.cust_id`  
+
+**全外联结**：  
+它检索两个表中的所有行并关联那些可以关联的行，与左外联结或右外联结包含一个表的不关联的行不同，全外联结包含两个表的不关联的行  
+`SELECT Customers.cust_id, Orders.order_num FROM Customers FULL OUTER JOIN Orders ON Customers.cust_id = Orders.cust_id`  
+
+**使用带聚集函数的联结**：  
+如果不分组，则结果大不相同：  
+`SELECT Customers.cust_id, COUNT(Orders.order_num) AS num_ord FROM Customers INNER JOIN Orders ON Customers.cust_id = Orders.cust_id GROUP BY Customers.cust_id`  
+**使用左外联结包含所有顾客，甚至包含没有任何订单的顾客**：  
+`SELECT Customers.cust_id, COUNT(Orders.order_num) AS num_ord FROM Customers LEFT OUTTER JOIN Orders ON Customers.cust_id = Orders.cust_id GROUP BY Customers.cust_id`  
 
 第十四课：组合查询
 SQL也允许多个查询（多条SELECT语句），并将结果作为一个查询结果返回，主要有两种使用场景：
