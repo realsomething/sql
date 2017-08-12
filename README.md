@@ -165,7 +165,7 @@ NOT操作符只有一个功能，就是否定其后所跟的任何条件，作�
 ```
 SELECT prod_id, prod_name, prod_price FROM Products WHERE vend_id != 'DLL01'; # 同上`  
 ```
-在更复杂的子句中，NOT非常有用，在与IN操作符联合使用时，NOT可以非常简单的找出与条件列表不匹配的行
+在更复杂的子句中，NOT非常有用，在与IN操作符联合使用时，NOT可以非常简单的找出与条件列表不匹配的行  
 [回到顶部](#readme)
 
 # 第六课：用通配符进行过滤
