@@ -498,8 +498,11 @@ Access不支持视图，MySQL从版本5开始支持视图，SQLite仅支持只�
 
 **创建视图**：  
 与CREATE TABLE一样，CREATE VIEW只能创建不存在的视图  
-```CREATE VIEW ProductCustomers AS SELECT cust_name, cust_contact, prod_id FROM Customers, Orders, OrderItems WHERE Customers.cust_id=Orders.cust_id AND OrderItems.order_num=Orders.order_num; 
-SELECT cust_name, cust_contact FROM ProductCustomers WHERE prod_id='RGAN01'```  
+```
+CREATE VIEW ProductCustomers AS SELECT cust_name, cust_contact, prod_id FROM Customers, Orders, OrderItems WHERE Customers.cust_id=Orders.cust_id AND OrderItems.order_num=Orders.order_num; 
+SELECT cust_name, cust_contact FROM ProductCustomers WHERE prod_id=\'RGAN01\'
+```  
+
 创建不绑定特定数据的视图是一个好办法，用WHERE子句再进行过滤  
 
 **用视图重新格式化检索出的数据**：  
@@ -510,27 +513,33 @@ SELECT cust_name, cust_contact FROM ProductCustomers WHERE prod_id='RGAN01'```
 
 **使用视图与计算字段**：  
 ```CREATE VIEW OrderItemsExpanded AS SELECT order_num, prod_id, quantity, item_price, quantity*item_price AS expanded_price FROM OrderItems;  
-SELECT * FROM OrderItemsExpanded WHERE order_num=20008;```  
+SELECT * FROM OrderItemsExpanded WHERE order_num=20008;
+```  
 视图是虚拟的表，包含的不是数据而是根据需要检索数据的查询，视图提供了一种封装SELECT语句的方式，可以用来简化数据处理，重新格式化或保护基础数据
 
-第十九课：存储过程
-存储过程是为了以后使用而保存的一条或多条SQL语句，可将其视为批文件，但它们的作用不限于此
-Access和SQLite不支持存储过程，MySQL版本5已经支持存储过程
-存储过程的优势：
-1：通过把处理封装在一个易用的单元，可以简化复杂的操作
-2：由于不要求反复建立一系列处理步骤，因而保证了数据的一致性
-3：简化对变动的管理，如果表名、列名、业务逻辑发生变化，只需更改存储过程的代码，使用者甚至不需要知道
-4：因为存储过程通常以编译过的形式存储，所以DBMS处理命令所需的工作量小，提供了性能
-5：存在一些只能用在单个请求中的SQL元素和特性，存储过程可以使用它们来编写功能更强更灵活的代码
-存储过程的缺陷：
-1：不同DBMS的存储过程语法有所不同，事实上，编写真正可移植的存储过程几乎是不可能的，不过，存储过程的自我调用可以相对保持可移植，因此要移植到别的DBMS，至少客户端代码无需改动
-2：一般来说，编写存储过程比编写基本SQL语句复杂，需要更高的技能，更丰富的经验，因此，许多数据库管理员把限制存储过程的创建作为安全措施
-多数DBMS将编写存储过程所需要的安全和访问权限与执行存储过程所需的安全和访问权限分开了，这是好事，即使不能自己编写存储过程，仍然可以在适当的时候执行存储过程
-执行存储过程：
-EXECUTE AddNewProduct('JTS01', 'Stuffed Eiffel Tower', 6.49, 'push stuffed toy with text');
+# 第十九课：存储过程
+存储过程是为了以后使用而保存的一条或多条SQL语句，可将其视为批文件，但它们的作用不限于此，Access和SQLite不支持存储过程，MySQL版本5已经支持存储过程  
+
+**存储过程的优势**：  
+1. 通过把处理封装在一个易用的单元，可以简化复杂的操作
+2. 由于不要求反复建立一系列处理步骤，因而保证了数据的一致性
+3. 简化对变动的管理，如果表名、列名、业务逻辑发生变化，只需更改存储过程的代码，使用者甚至不需要知道
+4. 因为存储过程通常以编译过的形式存储，所以DBMS处理命令所需的工作量小，提高了性能
+5. 存在一些只能用在单个请求中的SQL元素和特性，存储过程可以使用它们来编写功能更强更灵活的代码  
+
+**存储过程的缺陷**：  
+1. 不同DBMS的存储过程语法有所不同，事实上，编写真正可移植的存储过程几乎是不可能的，不过，存储过程的自我调用可以相对保持可移植，因此要移植到别的DBMS，至少客户端代码无需改动
+2. 一般来说，编写存储过程比编写基本SQL语句复杂，需要更高的技能，更丰富的经验，因此，许多数据库管理员把限制存储过程的创建作为安全措施  
+多数DBMS将编写存储过程所需要的安全和访问权限与执行存储过程所需的安全和访问权限分开了，这是好事，即使不能自己编写存储过程，仍然可以在适当的时候执行存储过程  
+
+**执行存储过程**：  
+`EXECUTE AddNewProduct('JTS01', 'Stuffed Eiffel Tower', 6.49, 'push stuffed toy with text');`  
 AddNewProduct存储过程名，四个参数：供应商ID，产品名，价格和描述
-创建存储过程：
-SQL Server的版本
+
+
+**创建存储过程**：  
+SQL Server的版本  
+```
 CREATE PROCEDURE MailingListCount AS
 DECLARE @cnt INTEGER
 SELECT @cnt = COUNT(*)
@@ -541,28 +550,39 @@ RETURN @cnt
 DECLARE @retValue INT
 EXECUTE @retValue = MailingListCount;
 SELECT @retValue
+```  
 
-第二十课：事务
-事务处理用来管理INSERT、UPDATE和DELETE语句，通过确保成批的SQL操作要么完成执行，要么完全不执行，来维护数据库的完整性；如果没有错误发生，整组语句提交（写到）数据库表，如果发生错误，则进行回退，将数据库恢复到某个已知且安全的状态；管理事务的关键在于将SQL语句组分解为逻辑块，并明确规定数据何时该回退，何时不该回退
-SQL SERVER：
+# 第二十课：事务
+事务处理用来管理INSERT、UPDATE和DELETE语句，通过确保成批的SQL操作要么完成执行，要么完全不执行，来维护数据库的完整性；如果没有错误发生，整组语句提交（写到）数据库表，如果发生错误，则进行回退，将数据库恢复到某个已知且安全的状态；管理事务的关键在于将SQL语句组分解为逻辑块，并明确规定数据何时该回退，何时不该回退  
+
+`SQL SERVER：  `  
+```
 BEGIN TRANSACTION
 ...
 COMMIT TRANSACTION
 MySQL：
 START TRANSACTION
 ...
-Oracle：
+```
+
+`Oracle：`  
+```
 SET TRANSACTION
 ...
-多数DBMS没有明确表示事务处理在何时结束，事务一直存在，直到被中断
-一般的SQL语句都是针对数据库表操作的，自动的隐性提交，在事务处理中，一般都是明确使用COMMIT语句显式提交
-SQL SERVER：
+```  
+多数DBMS没有明确表示事务处理在何时结束，事务一直存在，直到被中断  
+一般的SQL语句都是针对数据库表操作的，自动的隐性提交，在事务处理中，一般都是明确使用COMMIT语句显式提交  
+`SQL SERVER：`  
+```
 BEGIN TRANSACTION
 DELETE FROM OrderItems WHERE order_num = 12345;
 DELETE FROM Orders WHERE order_num = 12345
 COMMIT TRANSACTION
-要支持回退部分事务，必须在事务处理块中的合适位置添加占位符，也称为保留点
-SQL SERVER：
+```  
+
+要支持回退部分事务，必须在事务处理块中的合适位置添加占位符，也称为保留点  
+`SQL SERVER：`  
+```
 BEGIN TRANSACTION
 INSERT INTO Customers(cust_id, cust_name)
 VALUES('10000010', 'Toy Emporium')
@@ -577,6 +597,7 @@ INSERT INTO OrderItems(order_num, order_item, prod_id, quantity, item_price)
 VALUES(20100, 2, 'BR02', 100, 9.49);
 IF @@ERROR <> 0 ROLLBACK TRANSACTION StartOrder
 COMMIT TRANSACTION
+```  
 
 第二十一课：游标
 游标是一个存储在DBMS服务器上的数据库查询，不是SELECT语句，而是被该语句检索出来的结果集，其常见特性如下：
