@@ -1,7 +1,29 @@
-# sql
-basic common SQL statements review.
+# basic common SQL statements review.
 
 > 《数据库必知必会》笔记  
+
+* [第一课：简单概念](#第一课简单概念)
+* [第二课：检索数据](#第二课检索数据)
+* [第三课：排序检索结果](#第三课排序检索结果)
+* [第四课：过滤数据](#第四课过滤数据)
+* [第五课：高级数据过滤](#第五课高级数据过滤)
+* [第六课：用通配符进行过滤](#第六课用通配符进行过滤)
+* [第七课：创建计算字段](#第七课创建计算字段)
+* [第八课：使用函数处理数据](#第八课使用函数处理数据)
+* [第九课：汇总数据](#第九课汇总数据)
+* [第十课：分组数据](#第十课分组数据)
+* [第十一课：使用子查询](#第十一课使用子查询)
+* [第十二课：联结表](#第十二课联结表)
+* [第十三课：创建高级联结](#第十三课创建高级联结)
+* [第十四课：组合查询](#第十四课组合查询)
+* [第十五课：插入数据](#第十五课插入数据)
+* [第十六课：更新和删除数据](#第十六课更新和删除数据)
+* [第十七课：创建和操纵表](#第十七课创建和操纵表)
+* [第十八课：视图](#第十八课视图)
+* [第十九课：存储过程](#第十九课存储过程)
+* [第二十课：事务](#第二十课事务)
+* [第二十一课：游标](#第二十一课游标)
+* [第二十二课：高级SQL特性](#第二十二课高级sql特性)
 
 
 
@@ -33,7 +55,7 @@ CREATE TABLE Products (
     FOREIGN KEY (
         vend_id
     )
-    REFERENCES Vendors (vend_id) 
+    REFERENCES Vendors (vend_id)
 );
 
 CREATE TABLE Vendors (
@@ -60,7 +82,7 @@ CREATE TABLE Orders (
     FOREIGN KEY (
         cust_id
     )
-    REFERENCES Customers (cust_id) 
+    REFERENCES Customers (cust_id)
 );
 
 CREATE TABLE OrderItems (
@@ -80,32 +102,32 @@ CREATE TABLE OrderItems (
     FOREIGN KEY (
         prod_id
     )
-    REFERENCES Products (prod_id) 
+    REFERENCES Products (prod_id)
 );
 
 ```
 
 
-# 第一课：简单概念 
+# 第一课：简单概念
 **数据库**：保存有组织的数据的容器，通常是一个或一组文件  
 **DBMS**：数据库管理系统 DataBase Management System  
 **表table**：某种特定类型数据的结构化清单，使表名成为唯一的，实际上是数据库名和表名等的组合，有的数据库还使用数据库拥有者的名字作为唯一名的一部分，即虽然在相同数据库中不能两次使用相同的名字，但在不同数据库完全可以使用同名的表名  
 **列column**：表中的一个字段，表由一个或多个字段组成  
 **行row**：表中的一个记录  
 **主键primary key**：一列或一组列，其值能唯一标识表中每一行；没有主键，更新或删除表中特定行就极为困难，虽然并非必须，但是应该总是创建主键，其条件：  
-* 任意两行都不具有相同的主键 
-* 每行都必须具有一个主键值 
-* 主键列的值不允许修改或更新 
-* 主键值不能重用，如某行从表中删除，其主键不能赋予新行 
-* 若使用多个列作为主键，上述条件一起作用于这些列   
+* 任意两行都不具有相同的主键
+* 每行都必须具有一个主键值
+* 主键列的值不允许修改或更新
+* 主键值不能重用，如某行从表中删除，其主键不能赋予新行
+* 若使用多个列作为主键，上述条件一起作用于这些列  
 
 **数据类型**：定义了列可存储哪些数据种类  
-**SQL Structured Query Language**：结构化查询语言，专门用来与数据库沟通，其特点如下： 
+**SQL Structured Query Language**：结构化查询语言，专门用来与数据库沟通，其特点如下：
 * 几乎所有重要的DBMS都支持SQL
 * 简单易学，语句全部由很强描述性的英语单词组成，且数量不多
 * 是一种强有力的语言，灵活使用其语言元素，可以进行非常复杂和高级的数据库操作
 
-# 第二课：检索数据 
+# 第二课：检索数据
 **检索单列**：  
 ```
 SELECT prod_name FROM Products;  
@@ -126,11 +148,11 @@ SELECT * FROM Products;
 
 **检索不同的值**：  
 ```
-SELECT DISTINCT vend_id FROM Products; 
+SELECT DISTINCT vend_id FROM Products;
 ```
 关键字DISTINCT指示DBMS只返回具有唯一性的vend_id行，需要注意的是不能部分使用该关键字，它会作用于多列，如下语句会查询除了vend_id和prod_price都相同以外的所有行  
 ```
-SELECT DISTINCT vend_id, prod_price FROM Products; 
+SELECT DISTINCT vend_id, prod_price FROM Products;
 ```
 
 **限制检索结果**：  
@@ -306,7 +328,7 @@ SELECT prod_id, quantity, item_price, quantity*item_price AS total_price FROM Or
 计算字段的另一个常见用途是对检索出的数据进行算术计算  
 
 **测试计算**：  
-SELECT语句为测试、检验函数和计算提供了很好的方法，虽然它通常用了检索数据，但是省略了FROM子句后就是简单的访问和处理表达式，如： 
+SELECT语句为测试、检验函数和计算提供了很好的方法，虽然它通常用了检索数据，但是省略了FROM子句后就是简单的访问和处理表达式，如：
 ```
 SELECT 2*3;
 SELECT Trim('   abc ');
@@ -572,7 +594,7 @@ SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust
 ```
 SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_state IN('IL', 'IN', 'MI')
 UNION
-SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_name='Fun4All' 
+SELECT cust_name, cust_contact, cust_email, cust_state FROM Customers WHERE cust_name='Fun4All'
 ```
 在简单的例子中，使用UNION可能比WHERE子句更为复杂，但是对于较为复杂的过滤条件，或从多个表检索数据，使用UNION处理更简单，其使用规则：  
 * 必须由两条或以上SELECT语句组成，语句间用UNION分隔
@@ -610,7 +632,7 @@ VALUES('1000000008', 'Lucky Land', '345 Any Street', 'New York', 'NY', '33333', 
 
 **插入检索处理的数据**：  
 ```
-INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country) 
+INSERT INTO Customers(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country)
 Select  cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country
 From CustNew
 ```
@@ -648,14 +670,14 @@ DELETE不需要列名或通配符，删除整行或全部行，如果要删除�
 # 第十七课：创建和操纵表
 **创建表**：  
 ```
-CREATE TABLE Products 
+CREATE TABLE Products
 (
 prod_id 		CHAR (10) 	NOT NULL,
 vend_id 		CHAR (10) 	NOT NULL,
 prod_name 	CHAR (255) 	NOT NULL,
 prod_price 	DECIMAL (8, 2) NOT NULL,
 prod_desc 	TEXT,
-PRIMARY KEY 
+PRIMARY KEY
 (
 prod_id
 ),
@@ -732,7 +754,7 @@ Access不支持视图，MySQL从版本5开始支持视图，SQLite仅支持只�
 **创建视图**：  
 与CREATE TABLE一样，CREATE VIEW只能创建不存在的视图  
 ```
-CREATE VIEW ProductCustomers AS SELECT cust_name, cust_contact, prod_id FROM Customers, Orders, OrderItems WHERE Customers.cust_id=Orders.cust_id AND OrderItems.order_num=Orders.order_num; 
+CREATE VIEW ProductCustomers AS SELECT cust_name, cust_contact, prod_id FROM Customers, Orders, OrderItems WHERE Customers.cust_id=Orders.cust_id AND OrderItems.order_num=Orders.order_num;
 SELECT cust_name, cust_contact FROM ProductCustomers WHERE prod_id=\'RGAN01\'
 ```  
 
@@ -853,24 +875,24 @@ Access不支持游标，MySQL在版本5上支持，SQLite支持的游标为步�
 **创建游标**：  
 ```
 DECLARE CustCursor CURSOR
-FOR 
+FOR
 SELECT * FROM Customers
 WHERE cust_email IS NULL
 ```  
 
 **打开游标**：  
 ```
-OPEN CURSOR CustCursor 
+OPEN CURSOR CustCursor
 ```  
 
 **获取游标**：  
 ```
-FETCH CustCursor 
+FETCH CustCursor
 ```  
 
 **关闭游标**：  
 ```
-CLOSE CustCursor 
+CLOSE CustCursor
 ```  
 
 # 第二十二课：高级SQL特性
@@ -943,7 +965,7 @@ SQL SERVER的版本对所有的INSERT和UPDATE操作，转换大小写：
 CREATE TRIGGER customer_state
 ON Customers
 FOR INSERT, UPDATE
-AS 
+AS
 UPDATE Customers
 SET cust_state=Upper(cust_state)
 WHERE Customers.cust_id=inserted.cust_id
